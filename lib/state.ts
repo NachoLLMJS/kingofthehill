@@ -3,6 +3,7 @@ import snapshot from "@/data/callouts-snapshot.json";
 import { BREAK_SECONDS, CHAIN, GAME_START, ROUND_SECONDS, SERVER_CACHE_MS, TOKEN_ADDRESS } from "./config";
 import { buildState } from "./game";
 import { fetchNewCallouts, hasGmgnKeys, toCallout, type RawMessage } from "./gmgn";
+import { bridgeEnabled } from "./ingest";
 import { getStore } from "./store";
 import type { Callout, GameState } from "./types";
 
@@ -24,8 +25,20 @@ export async function getGameState(): Promise<GameState> {
   return state;
 }
 
+// If the bridge hasn't posted for this long, the badge shows "Reconnecting…".
+const BRIDGE_STALE_MS = 30_000;
+
+// Data sources, in order of preference:
+// 1. GMGN Callout OpenAPI (GMGN_AK/GMGN_SK): the server polls GMGN itself.
+// 2. Browser bridge (INGEST_SECRET): a userscript on gmgn.ai pushes to /api/ingest.
+// 3. Neither: replay the bundled snapshot (demo).
 async function load(now: number): Promise<GameState> {
-  if (!hasGmgnKeys()) return snapshotState(now);
+  if (hasGmgnKeys()) return loadFromApi(now);
+  if (bridgeEnabled()) return loadFromBridge(now);
+  return snapshotState(now);
+}
+
+async function loadFromApi(now: number): Promise<GameState> {
   const store = getStore();
   try {
     // Cold start: pull the whole archive once, then keep it in memory.
@@ -41,6 +54,24 @@ async function load(now: number): Promise<GameState> {
     console.error("[koth] sync failed:", error);
     return live(now, error);
   }
+}
+
+// Serverless instances don't share memory, so the bridge path always reads
+// the shared archive rather than a per-instance copy.
+async function loadFromBridge(now: number): Promise<GameState> {
+  const store = getStore();
+  const [all, last] = await Promise.all([store.all(), store.getMeta("lastIngestAt")]);
+  mem.archive = new Map(all.map((c) => [c.id, c]));
+  const offline = !last || now - Number(last) > BRIDGE_STALE_MS;
+  return live(now, offline ? "Bridge offline" : undefined);
+}
+
+export async function ingestCallouts(callouts: Callout[]): Promise<number> {
+  const store = getStore();
+  const added = await store.add(callouts);
+  await store.setMeta("lastIngestAt", String(Date.now()));
+  if (added) mem.cache = undefined; // next read shows the new king right away
+  return added;
 }
 
 function live(now: number, error?: string): GameState {

@@ -14,6 +14,8 @@ import type { Callout } from "./types";
 export type Store = {
   all(): Promise<Callout[]>;
   add(callouts: Callout[]): Promise<number>; // returns how many were new
+  getMeta(name: string): Promise<string | null>;
+  setMeta(name: string, value: string): Promise<void>;
   kind: "redis" | "file";
 };
 
@@ -51,11 +53,25 @@ function redisStore(url: string, token: string): Store {
       const args = callouts.flatMap((c) => [c.id, JSON.stringify(c)]);
       return Number(await call(["HSET", KEY, ...args]));
     },
+    async getMeta(name) {
+      return ((await call(["GET", `${KEY}:meta:${name}`])) as string | null) ?? null;
+    },
+    async setMeta(name, value) {
+      await call(["SET", `${KEY}:meta:${name}`, value]);
+    },
   };
 }
 
 function fileStore(): Store {
   const file = path.join(process.cwd(), ".data", `callouts-${CHAIN}-${TOKEN_ADDRESS}.json`);
+  const metaFile = file.replace(/\.json$/, ".meta.json");
+  const readMeta = async () => {
+    try {
+      return JSON.parse(await readFile(metaFile, "utf8")) as Record<string, string>;
+    } catch {
+      return {};
+    }
+  };
   let cache: Map<string, Callout> | null = null;
   const load = async () => {
     if (cache) return cache;
@@ -87,6 +103,14 @@ function fileStore(): Store {
         await rename(tmp, file);
       }
       return added;
+    },
+    async getMeta(name) {
+      return (await readMeta())[name] ?? null;
+    },
+    async setMeta(name, value) {
+      const meta = { ...(await readMeta()), [name]: value };
+      await mkdir(path.dirname(metaFile), { recursive: true });
+      await writeFile(metaFile, JSON.stringify(meta));
     },
   };
 }
