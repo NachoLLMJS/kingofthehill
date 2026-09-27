@@ -11,8 +11,8 @@ export const TOKEN_ADDRESS = (
 export const TOKEN_TICKER = process.env.NEXT_PUBLIC_TOKEN_TICKER ?? "$KING";
 
 // Seconds a call out holds the hill before its caller is crowned.
-// TO CONFIRM with Nicol: 10 minutes is a placeholder.
-export const ROUND_SECONDS = Number(process.env.NEXT_PUBLIC_ROUND_SECONDS ?? 600);
+// Confirmed by Nicol 2026-09-27: 5 minutes without a new call out crowns the king.
+export const ROUND_SECONDS = Number(process.env.NEXT_PUBLIC_ROUND_SECONDS ?? 300);
 
 export const GMGN_TOKEN_URL = `https://gmgn.ai/${CHAIN}/token/${TOKEN_ADDRESS}`;
 export const FLAP_TOKEN_URL = `https://flap.sh/bnb/${TOKEN_ADDRESS}`;

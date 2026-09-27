@@ -10,7 +10,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # Repository Guidelines — King of the Hill
 
-A game site for a Flap token: the **last GMGN call out** on the token holds the hill. Every new call out resets a countdown (`NEXT_PUBLIC_ROUND_SECONDS`, placeholder 600). When it reaches zero, that caller's wallet is crowned and gets the token's fees.
+A game site for a Flap token: the **last GMGN call out** on the token holds the hill. Every new call out resets a countdown (`NEXT_PUBLIC_ROUND_SECONDS`, 300 s = 5 min). When it reaches zero, that caller's wallet is crowned and gets the token's fees.
 
 ## Structure
 - `app/page.tsx` server-renders the first state. `app/api/state/route.ts` serves `GameState` JSON that the client polls every 8s.
