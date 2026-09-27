@@ -1,7 +1,6 @@
 import { FLAP_TOKEN_URL, GMGN_TOKEN_URL, ROUND_SECONDS, TOKEN_TICKER } from "@/lib/config";
 import { clock } from "@/lib/format";
 
-// TO CONFIRM with Nicol: holding requirement, payout timing and anti-spam rules.
 const STEPS = [
   {
     n: "01",
@@ -57,8 +56,8 @@ export function HowTo() {
           <Rule title="Only the last call out counts">
             Calling out more often doesn’t stack. What matters is being the most recent caller when the clock runs out.
           </Rule>
-          <Rule title="Rounds start themselves">
-            After a king is crowned, the hill stays open. The next call out on GMGN starts a fresh round with a full clock.
+          <Rule title="1-minute break, then a new round">
+            When a king is crowned the hill rests for 1 minute. After that it opens again, and the first call out on GMGN starts a fresh round with a full clock.
           </Rule>
         </div>
       </div>

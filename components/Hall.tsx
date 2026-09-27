@@ -22,7 +22,7 @@ export function Hall({ state }: { state: GameState }) {
             Carved in stone.
           </h2>
           <p className="mt-4 max-w-[46ch] text-[15px] leading-relaxed text-cloud/85">
-            Callers who held the hill for {minutes} minutes straight. Each one was crowned and earned the fees for that round.
+            Every caller who held the hill for {minutes} minutes with nobody calling out after them. Newest king first.
           </p>
         </header>
 
@@ -35,9 +35,9 @@ export function Hall({ state }: { state: GameState }) {
         ) : (
           <ol className="mt-12 grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3" aria-label="Crowned kings, newest first">
             {winners.map((w, i) => (
-              <li key={w.callout.id} className="px-box relative bg-stone-deep p-5 pt-7">
+              <li key={w.callout.id} className={`px-box relative p-5 pt-7 ${i === 0 ? "bg-[#4a4633]" : "bg-stone-deep"}`}>
                 <span className="absolute -top-4 right-4 bg-gold px-2 py-0.5 font-display text-xs font-bold tracking-widest text-ink uppercase">
-                  {i === 0 && state.status === "crowned" ? "Reigning" : `King #${state.stats.rounds - i}`}
+                  {i === 0 ? `Latest · round ${w.round}` : `Round ${w.round}`}
                 </span>
                 <div className="flex items-center gap-4">
                   <div className="relative">
@@ -64,13 +64,12 @@ export function Hall({ state }: { state: GameState }) {
                     <dd className="timer-digits mt-1 text-2xl">{new Date(w.wonAt).toLocaleTimeString("en", { hour: "2-digit", minute: "2-digit" })}</dd>
                   </div>
                   <div>
-                    <dt className="font-display text-[10px] font-bold tracking-widest text-cloud/60 uppercase">Held</dt>
-                    <dd className="timer-digits mt-1 text-2xl">{w.reignMs === null ? "still" : duration(w.reignMs).split(" ")[0]}</dd>
+                    <dt className="font-display text-[10px] font-bold tracking-widest text-cloud/60 uppercase">Round</dt>
+                    <dd className="timer-digits mt-1 text-2xl">{duration(w.wonAt - w.startedAt).split(" ")[0]}</dd>
                   </div>
                   <div>
-                    <dt className="font-display text-[10px] font-bold tracking-widest text-cloud/60 uppercase">Fees</dt>
-                    {/* TO CONFIRM: wire the real payout per round once the fee flow exists. */}
-                    <dd className="timer-digits mt-1 text-2xl text-gold">TBA</dd>
+                    <dt className="font-display text-[10px] font-bold tracking-widest text-cloud/60 uppercase">Call outs</dt>
+                    <dd className="timer-digits mt-1 text-2xl text-gold">{w.callouts}</dd>
                   </div>
                 </dl>
               </li>

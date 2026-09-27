@@ -1,15 +1,16 @@
 import "server-only";
 import snapshot from "@/data/callouts-snapshot.json";
-import { CHAIN, ROUND_SECONDS, SERVER_CACHE_MS, TOKEN_ADDRESS } from "./config";
+import { BREAK_SECONDS, CHAIN, GAME_START, ROUND_SECONDS, SERVER_CACHE_MS, TOKEN_ADDRESS } from "./config";
 import { buildState } from "./game";
-import { fetchTokenCallouts, hasGmgnKeys, toCallout, type RawMessage } from "./gmgn";
+import { fetchNewCallouts, hasGmgnKeys, toCallout, type RawMessage } from "./gmgn";
+import { getStore } from "./store";
 import type { Callout, GameState } from "./types";
 
 const token = { chain: CHAIN, address: TOKEN_ADDRESS };
 
 // Survives dev hot reloads so the snapshot replay clock does not restart.
 const g = globalThis as unknown as {
-  __koth?: { bootAt: number; cache?: { at: number; state: GameState }; inflight?: Promise<GameState>; lastGood?: Callout[] };
+  __koth?: { bootAt: number; cache?: { at: number; state: GameState }; inflight?: Promise<GameState>; archive?: Map<string, Callout> };
 };
 g.__koth ??= { bootAt: Date.now() };
 const mem = g.__koth;
@@ -25,26 +26,40 @@ export async function getGameState(): Promise<GameState> {
 
 async function load(now: number): Promise<GameState> {
   if (!hasGmgnKeys()) return snapshotState(now);
+  const store = getStore();
   try {
-    const callouts = await fetchTokenCallouts(CHAIN, TOKEN_ADDRESS);
-    mem.lastGood = callouts;
-    return buildState({ callouts, now, roundSeconds: ROUND_SECONDS, token, source: "live" });
+    // Cold start: pull the whole archive once, then keep it in memory.
+    if (!mem.archive) mem.archive = new Map((await store.all()).map((c) => [c.id, c]));
+    const fresh = await fetchNewCallouts(CHAIN, TOKEN_ADDRESS, new Set(mem.archive.keys()), GAME_START);
+    if (fresh.length) {
+      await store.add(fresh);
+      for (const c of fresh) mem.archive.set(c.id, c);
+    }
+    return live(now);
   } catch (err) {
     const error = err instanceof Error ? err.message : "GMGN unavailable";
-    console.error("[koth] GMGN fetch failed:", error);
-    return buildState({ callouts: mem.lastGood ?? [], now, roundSeconds: ROUND_SECONDS, token, source: "live", stale: true, error });
+    console.error("[koth] sync failed:", error);
+    return live(now, error);
   }
 }
 
+function live(now: number, error?: string): GameState {
+  const callouts = [...(mem.archive?.values() ?? [])].filter((c) => c.at >= GAME_START);
+  return buildState({ callouts, now, roundSeconds: ROUND_SECONDS, breakSeconds: BREAK_SECONDS, token, source: "live", stale: Boolean(error), error });
+}
+
 // Without API keys we replay the real snapshot of the test token, shifted so
-// it feels live: the newest call out lands ~25s after the server boots,
-// which exercises the "new king" reset on real data.
+// it feels live. The replay loops: the newest call out lands 25s into each
+// cycle (new king), the clock runs out (crowned + confetti), the break passes
+// and the hill sits open for 30s before the loop starts again.
 function snapshotState(now: number): GameState {
   const raw = (snapshot.messages as RawMessage[]).map(toCallout);
   const newest = Math.max(...raw.map((c) => c.at));
-  const shift = mem.bootAt + 25_000 - newest;
+  const cycle = 25_000 + (ROUND_SECONDS + BREAK_SECONDS + 30) * 1000;
+  const cycleStart = now - ((now - mem.bootAt) % cycle);
+  const shift = cycleStart + 25_000 - newest;
   const callouts = raw.map((c) => ({ ...c, at: c.at + shift }));
-  return buildState({ callouts, now, roundSeconds: ROUND_SECONDS, token, source: "snapshot" });
+  return buildState({ callouts, now, roundSeconds: ROUND_SECONDS, breakSeconds: BREAK_SECONDS, token, source: "snapshot" });
 }
 
 function rebaseNow(state: GameState, now: number): GameState {

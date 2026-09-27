@@ -22,14 +22,14 @@ export function Feed({ state, now }: { state: GameState; now: number }) {
               Every call out knocks the king off.
             </h2>
             <p className="mt-4 max-w-[38ch] text-[15px] leading-relaxed text-parchment/85">
-              Live from GMGN, newest first. Each row shows how long that caller held the hill before someone else called out.
+              Live from GMGN, newest first. Each row shows how long that caller held the hill before someone else called out. Call outs during the 1-minute break after a coronation don’t count.
             </p>
 
             <dl className="mt-8 grid grid-cols-2 gap-4">
               <Stat label="Call outs" value={String(stats.callouts)} />
               <Stat label="Challengers" value={String(stats.challengers)} />
               <Stat label="Kings crowned" value={String(stats.rounds)} />
-              <Stat label="Longest reign" value={duration(stats.longestReignMs).split(" ")[0]} />
+              <Stat label="Longest round" value={duration(stats.longestRoundMs).split(" ")[0]} />
             </dl>
             {stats.windowStart ? (
               <p className="mt-3 text-xs text-parchment/60">Since {new Date(stats.windowStart).toLocaleString("en", { dateStyle: "medium", timeStyle: "short" })}</p>
@@ -44,8 +44,8 @@ export function Feed({ state, now }: { state: GameState; now: number }) {
               </div>
             ) : (
               <ol className="flex flex-col gap-4" aria-label="Recent call outs">
-                {items.map((c, i) => {
-                  const isKing = i === 0 && c.reignMs === null;
+                {items.map((c) => {
+                  const isKing = state.status === "live" && state.king?.id === c.id;
                   return (
                     <li
                       key={c.id}
@@ -67,7 +67,7 @@ export function Feed({ state, now }: { state: GameState; now: number }) {
                         </p>
                       </div>
                       <div className="col-span-2 flex items-center gap-2 sm:col-span-1 sm:flex-col sm:items-end sm:justify-center">
-                        <ReignTag reignMs={c.reignMs} crowned={c.crowned} isKing={isKing} now={now} at={c.at} />
+                        <ReignTag reignMs={c.reignMs} crowned={c.crowned} isKing={isKing} now={now} at={c.at} onBreak={c.round === null} />
                       </div>
                     </li>
                   );
@@ -89,7 +89,9 @@ export function Feed({ state, now }: { state: GameState; now: number }) {
   );
 }
 
-function ReignTag({ reignMs, crowned, isKing, now, at }: { reignMs: number | null; crowned: boolean; isKing: boolean; now: number; at: number }) {
+function ReignTag({ reignMs, crowned, isKing, now, at, onBreak }: { reignMs: number | null; crowned: boolean; isKing: boolean; now: number; at: number; onBreak: boolean }) {
+  if (onBreak)
+    return <span className="border-2 border-dashed border-ink/30 px-2 py-0.5 font-display text-xs font-bold tracking-wider text-ink-soft/80 uppercase">During break</span>;
   if (isKing && !crowned)
     return <span className="bg-ink px-2 py-1 font-display text-xs font-bold tracking-wider text-gold uppercase">On the hill · {duration(now - at)}</span>;
   if (crowned) return <span className="bg-ruby px-2 py-1 font-display text-xs font-bold tracking-wider text-white uppercase">Crowned</span>;

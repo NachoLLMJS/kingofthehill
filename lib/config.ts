@@ -14,6 +14,13 @@ export const TOKEN_TICKER = process.env.NEXT_PUBLIC_TOKEN_TICKER ?? "$KING";
 // Confirmed by Nicol 2026-09-27: 5 minutes without a new call out crowns the king.
 export const ROUND_SECONDS = Number(process.env.NEXT_PUBLIC_ROUND_SECONDS ?? 300);
 
+// Break after a coronation before the hill opens again (confirmed: 1 minute).
+export const BREAK_SECONDS = Number(process.env.NEXT_PUBLIC_BREAK_SECONDS ?? 60);
+
+// Call outs before this moment don't count (ISO date, e.g. 2026-10-01T18:00:00Z).
+// Empty = every call out GMGN returns counts.
+export const GAME_START = Date.parse(process.env.NEXT_PUBLIC_GAME_START ?? "") || 0;
+
 export const GMGN_TOKEN_URL = `https://gmgn.ai/${CHAIN}/token/${TOKEN_ADDRESS}`;
 export const FLAP_TOKEN_URL = `https://flap.sh/bnb/${TOKEN_ADDRESS}`;
 export const BSCSCAN_ADDRESS_URL = (addr: string) => `https://bscscan.com/address/${addr}`;

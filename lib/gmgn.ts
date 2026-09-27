@@ -9,7 +9,8 @@ import type { Callout } from "./types";
 const HOST = "https://papi.gmgn.ai";
 const TOKEN_PATH = "/callout/openapi/v1/token";
 const PAGE_LIMIT = 50;
-const MAX_PAGES = 4;
+const BACKFILL_PAGES = 20; // first sync: up to 1,000 call outs
+const POLL_PAGES = 4;
 
 export type RawMessage = {
   ulid?: string;
@@ -51,17 +52,24 @@ async function signedPost<T>(path: string, payload: unknown): Promise<T> {
   return json.data;
 }
 
-export async function fetchTokenCallouts(chain: string, token: string): Promise<Callout[]> {
+// Pages newest → older and stops at the first call out we already know, so a
+// normal poll costs one request. With nothing known yet it backfills.
+export async function fetchNewCallouts(chain: string, token: string, known: Set<string>, since = 0): Promise<Callout[]> {
   const out: Callout[] = [];
+  const maxPages = known.size ? POLL_PAGES : BACKFILL_PAGES;
   let cursor = "";
-  for (let page = 0; page < MAX_PAGES; page++) {
+  for (let page = 0; page < maxPages; page++) {
     const data = await signedPost<{ messages?: RawMessage[]; has_more?: boolean; next_cursor?: string }>(TOKEN_PATH, {
       chain,
       call_token: token,
       cursor,
       limit: PAGE_LIMIT,
     });
-    out.push(...(data.messages ?? []).map(toCallout));
+    const batch = (data.messages ?? []).map(toCallout);
+    const fresh = batch.filter((c) => !known.has(c.id));
+    out.push(...fresh);
+    if (fresh.length < batch.length) break; // reached what we already have
+    if (batch.some((c) => c.at < since)) break; // older than the game start
     // Page on has_more, not on next_cursor (per GMGN docs).
     if (!data.has_more || !data.next_cursor) break;
     cursor = data.next_cursor;

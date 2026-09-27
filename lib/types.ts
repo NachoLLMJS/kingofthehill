@@ -12,14 +12,23 @@ export type Callout = {
 };
 
 export type FeedItem = Callout & {
-  // How long this call out held the hill (null while it is the current king).
-  reignMs: number | null;
+  round: number | null; // null = landed during the break, didn't count
+  reignMs: number | null; // null while it is the current king
   crowned: boolean;
 };
 
-export type Winner = { callout: Callout; wonAt: number; reignMs: number | null };
+export type Winner = {
+  callout: Callout;
+  round: number;
+  startedAt: number; // first call out of the round
+  wonAt: number;
+  callouts: number; // counted call outs in that round
+};
 
-export type GameStatus = "live" | "crowned" | "empty" | "error";
+// live    → a king holds the hill, clock running
+// crowned → the clock hit zero; 1-minute break before the next round
+// open    → break is over, first call out starts a new round
+export type GameStatus = "live" | "crowned" | "open" | "empty" | "error";
 
 export type GameState = {
   source: "live" | "snapshot";
@@ -27,17 +36,21 @@ export type GameState = {
   error?: string;
   serverNow: number;
   roundSeconds: number;
+  breakSeconds: number;
   token: { chain: string; address: string };
   status: GameStatus;
-  king: Callout | null;
+  round: number; // current (or last) round number
+  king: Callout | null; // live: current king · crowned: the winner
   roundEndsAt: number | null;
+  breakEndsAt: number | null;
+  lastWinner: Winner | null;
   recent: FeedItem[];
   winners: Winner[];
   stats: {
     callouts: number;
     challengers: number;
     rounds: number;
-    longestReignMs: number;
+    longestRoundMs: number;
     windowStart: number | null;
   };
 };
