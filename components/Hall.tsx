@@ -4,9 +4,8 @@ import { useState } from "react";
 import { BSCSCAN_ADDRESS_URL } from "@/lib/config";
 import { duration, shortAddr } from "@/lib/format";
 import type { GameState } from "@/lib/types";
-import { Edge, zoneAttrs } from "./Descent";
+import { zoneAttrs } from "./Descent";
 import { PixelAvatar, PixelCrown } from "./pixel";
-import { Torch } from "./sprites";
 
 const PAGE = 6;
 
@@ -60,8 +59,6 @@ export function Hall({ state }: { state: GameState }) {
           <ol className="grid gap-x-6 gap-y-14 sm:grid-cols-2 lg:grid-cols-3" aria-label="Crowned kings, newest first">
             {winners.map((w, i) => (
               <li key={w.callout.id} data-reveal style={{ ["--i" as string]: i % 3 }} className="relative pt-6">
-                <Torch className="absolute -top-4 left-3 h-11 w-5" />
-                <Torch className="absolute -top-4 right-3 h-11 w-5" />
                 <article className={`tomb relative p-6 pt-8 ${i === 0 ? "tomb--latest" : ""}`}>
                   <span className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#8f1d22] px-3 py-0.5 font-display text-xs font-bold tracking-widest whitespace-nowrap text-gold uppercase shadow-[0_0_0_3px_#0d0f1c]">
                     {i === 0 ? `Latest king · round ${w.round}` : `Round ${w.round}`}
@@ -117,7 +114,6 @@ export function Hall({ state }: { state: GameState }) {
       </div>
 
       <div className="h-24" />
-      <Edge fill="#1d1c21" seed={13} height={56} className="relative -mt-14" />
     </section>
   );
 }

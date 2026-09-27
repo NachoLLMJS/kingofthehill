@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ago, duration, shortAddr } from "@/lib/format";
 import type { FeedItem, GameState } from "@/lib/types";
-import { Edge, zoneAttrs } from "./Descent";
+import { zoneAttrs } from "./Descent";
 import { PixelAvatar, PixelCrown } from "./pixel";
 import { Flag } from "./sprites";
 
@@ -17,15 +17,15 @@ export function Feed({ state, now }: { state: GameState; now: number }) {
   const { stats } = state;
 
   return (
-    <section id="challengers" aria-labelledby="feed-title" className="relative scroll-mt-16 overflow-hidden bg-[#5f5e5d]" {...zoneAttrs("challengers")}>
+    <section id="challengers" aria-labelledby="feed-title" className="relative z-[6] -mt-[72px] scroll-mt-16 overflow-hidden" {...zoneAttrs("challengers")}>
       {/* One painted mountainside: the trail winds down to the mine entrance at the bottom. */}
       <div
-        className="absolute inset-0 bg-[image:image-set(url(/assets/mountain-face-800.webp)_1x,url(/assets/mountain-face-1360.webp)_2x)] bg-cover bg-[position:50%_100%] [image-rendering:pixelated] lg:bg-[image:url(/assets/mountain-face-1360.webp)]"
+        className="absolute inset-0 bg-[#5f5e5d] bg-[image:image-set(url(/assets/mountain-face-800.webp)_1x,url(/assets/mountain-face-1360.webp)_2x)] bg-cover bg-[position:50%_100%] [image-rendering:pixelated] [mask-image:linear-gradient(to_bottom,transparent_0,black_72px)] lg:bg-[image:url(/assets/mountain-face-1360.webp)]"
         aria-hidden
       />
       <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgb(15_29_58/.05),rgb(15_29_58/.25)_40%,rgb(15_29_58/.25)_75%,transparent_92%)]" aria-hidden />
 
-      <div className="relative mx-auto max-w-[1100px] px-4 pt-16 sm:px-6">
+      <div className="relative mx-auto max-w-[1100px] px-4 pt-32 sm:px-6">
         <header data-reveal className="px-box mx-auto max-w-[620px] bg-parchment p-6 text-center text-ink sm:p-8">
           <p className="font-display text-sm font-bold tracking-[0.2em] text-grass-dk uppercase">2,000m · the slopes</p>
           <h2 id="feed-title" className="mt-2 font-display text-4xl leading-none font-bold sm:text-5xl">
@@ -68,12 +68,11 @@ export function Feed({ state, now }: { state: GameState; now: number }) {
       </div>
 
       {/* The trail ends at the mine: leave room so the painted entrance shows. */}
-      <div className="relative flex h-[300px] items-start justify-center pt-6 sm:h-[360px] lg:h-[420px]">
+      <div className="relative flex h-[340px] items-start justify-center pt-6 sm:h-[400px] lg:h-[460px]">
         <a href="#mine" className="px-box bg-[#5b3a22] px-4 py-2 font-display text-sm font-bold tracking-[0.18em] text-gold uppercase hover:bg-[#7a5030]">
           Enter the mine <span aria-hidden>▼</span>
         </a>
       </div>
-      <Edge fill="#0b0704" seed={9} height={40} className="relative -mt-10" />
     </section>
   );
 }

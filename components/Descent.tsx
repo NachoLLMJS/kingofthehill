@@ -1,5 +1,3 @@
-import { SUMMIT_ALTITUDE } from "./ScrollEngine";
-
 export const ZONES = [
   { id: "top", label: "Summit", hud: "#489ffa", hudEdge: "#0f1d3a" },
   { id: "challengers", label: "The slopes", hud: "#3f9a2c", hudEdge: "#1e441c" },
@@ -13,48 +11,6 @@ export type ZoneId = (typeof ZONES)[number]["id"];
 export function zoneAttrs(id: ZoneId) {
   const z = ZONES.find((z) => z.id === id)!;
   return { "data-zone": z.id, "data-hud": z.hud, "data-hud-edge": z.hudEdge, "data-label": z.label };
-}
-
-// Fixed altimeter on the left edge: altitude counts down and the croc slides
-// down the rope as you descend. Values are written by ScrollEngine.
-export function DepthMeter() {
-  return (
-    <nav aria-label="Descent" className="depth-meter pointer-events-none fixed top-24 bottom-8 left-2 z-30 hidden w-[72px] flex-col items-center min-[1400px]:flex">
-      <div className="px-box pointer-events-auto bg-ink/85 px-2 py-1.5 text-center text-cloud">
-        <p className="font-display text-[9px] font-bold tracking-[0.2em] text-gold uppercase">Altitude</p>
-        <p id="alt-value" className="timer-digits text-xl leading-none">
-          {SUMMIT_ALTITUDE.toLocaleString("en")}m
-        </p>
-        <p id="alt-zone" className="mt-0.5 font-display text-[9px] font-bold tracking-wider uppercase">
-          Summit
-        </p>
-      </div>
-
-      <div className="relative mt-3 w-full flex-1 [container-type:size]">
-        {/* the rope */}
-        <div className="absolute top-0 bottom-0 left-1/2 w-1 -translate-x-1/2 bg-[repeating-linear-gradient(to_bottom,#e8d7a8_0_8px,#9a6a3c_8px_12px)] shadow-[0_0_0_2px_rgb(15_29_58/.5)]" />
-        {/* zone stops */}
-        {ZONES.map((z, i) => (
-          <a
-            key={z.id}
-            href={`#${z.id}`}
-            data-zone-link={z.id}
-            className="zone-stop pointer-events-auto absolute left-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center"
-            style={{ top: `${(i / (ZONES.length - 1)) * 100}%` }}
-            aria-label={`Jump to ${z.label}`}
-          >
-            <span className="block h-3 w-3 border-2 border-ink" style={{ background: z.hud }} />
-            <span className="zone-stop-label absolute left-5 font-display text-[10px] font-bold tracking-wider whitespace-nowrap uppercase">{z.label}</span>
-          </a>
-        ))}
-        {/* climber */}
-        <div id="alt-marker" className="absolute top-0 left-1/2 will-change-transform">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/assets/logo-emblem-128.webp" alt="" width={40} height={40} className="pixelated -mt-[20px] -ml-[20px] h-10 w-10" />
-        </div>
-      </div>
-    </nav>
-  );
 }
 
 // Stepped, pixel-cut seam between two strata. `fill` is the colour of the
@@ -81,5 +37,35 @@ export function Edge({ fill, seed = 1, height = 40, flip = false, className = ""
     >
       <path d={d} fill={fill} />
     </svg>
+  );
+}
+
+const STRATA = {
+  ground: { w: 1920, h: 480, alt: "Cross-section of the ground: grass, roots and rock, with a mine shaft and ladder going down" },
+  rock: { w: 1920, h: 584, alt: "Deep rock layers with crystals and gold veins; the shaft ladder leads down into the crypt's stone arches" },
+  magma: { w: 1920, h: 490, alt: "Basalt with glowing lava cracks; stone stairs lead down to the core" },
+} as const;
+
+// A cross-section band of rock that bridges two layers of the descent. It
+// overlaps both neighbours (negative margins) so there is never a hard cut,
+// and its central shaft (ladder, then stairs) is the thread down the page.
+// overlapTop / overlapBottom are fractions of the band's rendered height.
+export function Stratum({ kind, overlapTop, overlapBottom }: { kind: keyof typeof STRATA; overlapTop: number; overlapBottom: number }) {
+  const a = STRATA[kind];
+  const h = `(max(100vw, 760px) * ${a.h / a.w})`;
+  return (
+    <div className="pointer-events-none relative z-20 overflow-x-clip" style={{ marginTop: `calc(-1 * ${h} * ${overlapTop})`, marginBottom: `calc(-1 * ${h} * ${overlapBottom})` }}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={`/assets/divider-${kind}-1920.webp`}
+        srcSet={`/assets/divider-${kind}-960.webp 960w, /assets/divider-${kind}-1920.webp 1920w`}
+        sizes="max(100vw, 760px)"
+        alt={a.alt}
+        width={a.w}
+        height={a.h}
+        loading="lazy"
+        className="pixelated relative left-1/2 block w-[max(100vw,760px)] max-w-none -translate-x-1/2"
+      />
+    </div>
   );
 }

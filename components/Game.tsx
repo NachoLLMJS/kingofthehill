@@ -1,6 +1,7 @@
 "use client";
 
 import type { GameState } from "@/lib/types";
+import { Stratum } from "./Descent";
 import { Feed } from "./Feed";
 import { Hall } from "./Hall";
 import { Hero } from "./Hero";
@@ -13,8 +14,11 @@ export function Game({ initial }: { initial: GameState }) {
     <>
       <Hero state={state} now={now} connection={connection} />
       <Feed state={state} now={now} />
+      <Stratum kind="ground" overlapTop={0.3} overlapBottom={0.3} />
       <HowTo />
+      <Stratum kind="rock" overlapTop={0.24} overlapBottom={0.36} />
       <Hall state={state} />
+      <Stratum kind="magma" overlapTop={0.26} overlapBottom={0.26} />
     </>
   );
 }

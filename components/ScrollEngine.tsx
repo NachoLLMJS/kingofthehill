@@ -8,8 +8,6 @@ import { useEffect } from "react";
 //   [data-scrub]          → --scrub 0..1 as the element crosses the viewport
 //   [data-reveal]         → gets .is-in once it enters the viewport
 //   [data-zone]           → the zone under the HUD sets --hud / --hud-ink on <html>
-//   #alt-value / #alt-zone / #alt-marker → the depth meter
-export const SUMMIT_ALTITUDE = 3000;
 
 export function ScrollEngine() {
   useEffect(() => {
@@ -25,10 +23,6 @@ export function ScrollEngine() {
       scrubs = [...document.querySelectorAll<HTMLElement>("[data-scrub]")];
       zones = [...document.querySelectorAll<HTMLElement>("[data-zone]")];
     };
-
-    const altValue = () => document.getElementById("alt-value");
-    const altZone = () => document.getElementById("alt-zone");
-    const altMarker = () => document.getElementById("alt-marker");
 
     let lastZone = "";
     const frame = () => {
@@ -62,15 +56,8 @@ export function ScrollEngine() {
         lastZone = current.dataset.zone ?? "";
         root.style.setProperty("--hud", current.dataset.hud ?? "#489ffa");
         root.style.setProperty("--hud-edge", current.dataset.hudEdge ?? "#0f1d3a");
-        const z = altZone();
-        if (z) z.textContent = current.dataset.label ?? "";
         document.querySelectorAll("[data-zone-link]").forEach((a) => a.toggleAttribute("aria-current", (a as HTMLElement).dataset.zoneLink === lastZone));
       }
-
-      const v = altValue();
-      if (v) v.textContent = `${Math.round(SUMMIT_ALTITUDE * (1 - p)).toLocaleString("en")}m`;
-      const m = altMarker();
-      if (m) m.style.transform = `translate3d(0, ${(p * 100).toFixed(2)}cqh, 0)`;
     };
     const schedule = () => {
       if (!raf) raf = requestAnimationFrame(frame);
