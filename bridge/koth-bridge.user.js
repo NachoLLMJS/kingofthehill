@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         King of the Hill — GMGN call out bridge
 // @namespace    koth
-// @version      1.0.0
+// @version      1.1.0
 // @description  Reads the token's call outs from gmgn.ai every few seconds and sends them to the King of the Hill site.
 // @match        https://gmgn.ai/*
 // @grant        GM_xmlhttpRequest
@@ -14,15 +14,17 @@
 (function () {
   "use strict";
 
-  // ── Config: edit these four lines ─────────────────────────────────────────
+  // ── Config: edit these two lines ──────────────────────────────────────────
   const SITE = "http://localhost:3217"; // your site, e.g. https://kingofthehill.xyz
   const SECRET = "PASTE_INGEST_SECRET_HERE"; // same value as INGEST_SECRET on the site
-  const CHAIN = "bsc";
-  const TOKEN = "0xfedf19759ba9c45b1a8345a2bde916b38acc7777";
   // ──────────────────────────────────────────────────────────────────────────
 
   const EVERY_MS = 5000;
-  const FEED = `/api/v1/token/${CHAIN}/${TOKEN}/community/messages?from_app=gmgn&os=web&app_lang=en&limit=50`;
+  // Chain and token come from the site (/api/config), so launching a new
+  // token only needs the site's env vars. Re-read every minute.
+  let game = null;
+  let gameAt = 0;
+  const feedUrl = () => `/api/v1/token/${game.chain}/${game.token}/community/messages?from_app=gmgn&os=web&app_lang=en&limit=50`;
 
   // Runs in a single gmgn.ai tab: extra tabs step aside.
   const LOCK = "koth-bridge-lock";
@@ -48,6 +50,18 @@
     badge.style.color = ok ? "#0f1d3a" : "#fff";
     if (!badge.isConnected) document.body.appendChild(badge);
   };
+
+  const getConfig = () =>
+    new Promise((resolve, reject) => {
+      GM_xmlhttpRequest({
+        method: "GET",
+        url: `${SITE}/api/config`,
+        timeout: 10000,
+        onload: (r) => (r.status === 200 ? resolve(JSON.parse(r.responseText)) : reject(new Error(`config ${r.status}`))),
+        onerror: () => reject(new Error("site unreachable")),
+        ontimeout: () => reject(new Error("site timeout")),
+      });
+    });
 
   const post = (payload) =>
     new Promise((resolve, reject) => {
@@ -85,15 +99,19 @@
         show("standby (another gmgn tab is sending)");
         return;
       }
-      const res = await fetch(FEED, { credentials: "include" });
+      if (!game || Date.now() - gameAt > 60000) {
+        game = await getConfig();
+        gameAt = Date.now();
+      }
+      const res = await fetch(feedUrl(), { credentials: "include" });
       if (!res.ok) throw new Error(`gmgn ${res.status}`);
       const json = await res.json();
       const messages = json?.data?.messages;
       if (!Array.isArray(messages)) throw new Error("gmgn: unexpected response");
-      const out = await post({ chain: CHAIN, token: TOKEN, messages });
+      const out = await post({ chain: game.chain, token: game.token, messages });
       total += out.added;
       failures = 0;
-      show(`live ${new Date().toLocaleTimeString()} · ${messages.length} seen · +${total} new`);
+      show(`live ${new Date().toLocaleTimeString()} · ${game.token.slice(0, 6)}…${game.token.slice(-4)} · +${total} new`);
     } catch (err) {
       failures += 1;
       wait = Math.min(60000, EVERY_MS * 2 ** Math.min(failures, 4));

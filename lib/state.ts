@@ -84,6 +84,10 @@ function live(now: number, error?: string): GameState {
 // cycle (new king), the clock runs out (crowned + confetti), the break passes
 // and the hill sits open for 30s before the loop starts again.
 function snapshotState(now: number): GameState {
+  // The bundled snapshot belongs to the test token; never replay it for another.
+  if (snapshot.token.toLowerCase() !== TOKEN_ADDRESS) {
+    return buildState({ callouts: [], now, roundSeconds: ROUND_SECONDS, breakSeconds: BREAK_SECONDS, token, source: "snapshot" });
+  }
   const raw = (snapshot.messages as RawMessage[]).map(toCallout);
   const newest = Math.max(...raw.map((c) => c.at));
   const cycle = 25_000 + (ROUND_SECONDS + BREAK_SECONDS + 30) * 1000;

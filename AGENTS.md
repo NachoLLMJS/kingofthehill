@@ -33,6 +33,11 @@ A game site for a Flap token: the **last GMGN call out** on the token holds the 
 - Fonts: Pixelify Sans (display), Jersey 10 (timer and numbers), DotGothic16 with a CJK system fallback (body; most caller names are Chinese).
 - Primitives: `.px-box` (notched 4px ink border), `.btn-px`, `.px-outline` (white text with ink outline on sky), 4px spacing grid, `steps()` easing, reduced-motion respected.
 
+## Launching the real token (env only, no code changes)
+1. In Vercel, set `NEXT_PUBLIC_TOKEN_ADDRESS`, `NEXT_PUBLIC_TOKEN_TICKER`, and `NEXT_PUBLIC_GAME_START` (ISO date of the launch), then **redeploy**. `NEXT_PUBLIC_*` values are inlined at build time.
+2. The call out archive is keyed by chain+token, so the new token starts clean and the test data stays separate.
+3. The bridge reads chain and token from `/api/config` every minute, so it follows the new token without edits. The page is at `gmgn.ai/…`; it does not need to be the token page.
+
 ## Security and limits
 - Never expose `GMGN_SK` to the client or commit `.env*`. `.env.example` lists the variables.
 - GMGN rejects IPs that aren't allowlisted, and Vercel has no fixed egress IP. Production needs a static-IP proxy/VPS or a GMGN arrangement.
