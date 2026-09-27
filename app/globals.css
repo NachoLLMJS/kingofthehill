@@ -1,0 +1,327 @@
+@import "tailwindcss";
+
+/* ───────────── King of the Hill design tokens ─────────────
+   Palette sampled from the logo art (sky, grass, crown, ruby) plus the
+   mountain strata the page descends through: grass → dirt → stone → bedrock. */
+:root {
+  --sky-top: #489ffa;
+  --sky-mid: #58b2fa;
+  --sky-low: #6dcbfb;
+  --cloud: #f4f9ff;
+  --cloud-shade: #c0ddfa;
+
+  --grass-hi: #c5f14e;
+  --grass: #94df50;
+  --grass-dk: #3f9a2c;
+  --grass-ink: #1e441c;
+
+  --dirt: #9a6a3c;
+  --dirt-dk: #7a5030;
+  --dirt-deep: #5b3a22;
+
+  --stone-hi: #a9a8a6;
+  --stone: #8a8886;
+  --stone-dk: #5f5e5d;
+  --stone-deep: #3f3e3e;
+  --bedrock: #1d1c21;
+
+  --gold: #fbd322;
+  --gold-dk: #e0a412;
+  --gold-ink: #483114;
+  --ruby: #c23729;
+  --belly: #f8ce5e;
+  --parchment: #fff6dc;
+
+  --ink: #0f1d3a;
+  --ink-soft: #33466e;
+
+  --px: 4px; /* one "art pixel" at UI scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-24: 96px;
+
+  --dur-fast: 120ms;
+  --dur-mid: 240ms;
+  --dur-slow: 480ms;
+  --ease-px: steps(4, end);
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@theme inline {
+  --font-display: var(--font-pixelify), "DotGothic16", ui-monospace, monospace;
+  --font-digits: var(--font-jersey), var(--font-pixelify), monospace;
+  --font-body: var(--font-dotgothic), "Noto Sans SC", "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-sky: var(--sky-mid);
+  --color-cloud: var(--cloud);
+  --color-gold: var(--gold);
+  --color-gold-dk: var(--gold-dk);
+  --color-gold-ink: var(--gold-ink);
+  --color-ruby: var(--ruby);
+  --color-grass: var(--grass);
+  --color-grass-dk: var(--grass-dk);
+  --color-grass-ink: var(--grass-ink);
+  --color-dirt: var(--dirt);
+  --color-dirt-deep: var(--dirt-deep);
+  --color-stone: var(--stone);
+  --color-stone-deep: var(--stone-deep);
+  --color-bedrock: var(--bedrock);
+  --color-parchment: var(--parchment);
+}
+
+html {
+  scroll-behavior: smooth;
+  background: var(--bedrock);
+}
+
+body {
+  background: var(--sky-top);
+  color: var(--ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: none;
+  text-rendering: optimizeSpeed;
+}
+
+::selection {
+  background: var(--gold);
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px var(--ink);
+}
+
+/* ── Pixel primitives ── */
+
+/* Notched 4px ink border — the classic RPG window corner. */
+.px-box {
+  position: relative;
+  box-shadow:
+    0 calc(var(--px) * -1) 0 0 var(--ink),
+    0 var(--px) 0 0 var(--ink),
+    calc(var(--px) * -1) 0 0 0 var(--ink),
+    var(--px) 0 0 0 var(--ink),
+    0 calc(var(--px) * 3) 0 0 rgb(15 29 58 / 0.28);
+}
+
+.px-bevel {
+  box-shadow:
+    inset 0 calc(var(--px) * -1.5) 0 0 rgb(0 0 0 / 0.18),
+    inset 0 var(--px) 0 0 rgb(255 255 255 / 0.35);
+}
+
+/* White pixel type with a hard ink outline, readable on the bright sky. */
+.px-outline {
+  color: #fff;
+  text-shadow:
+    3px 0 0 var(--ink), -3px 0 0 var(--ink), 0 3px 0 var(--ink), 0 -3px 0 var(--ink),
+    3px 3px 0 var(--ink), -3px 3px 0 var(--ink), 3px -3px 0 var(--ink), -3px -3px 0 var(--ink),
+    0 8px 0 rgb(15 29 58 / 0.3);
+}
+
+.px-outline-sm {
+  color: #fff;
+  text-shadow:
+    2px 0 0 var(--ink), -2px 0 0 var(--ink), 0 2px 0 var(--ink), 0 -2px 0 var(--ink),
+    2px 2px 0 var(--ink), -2px 2px 0 var(--ink), 2px -2px 0 var(--ink), -2px -2px 0 var(--ink);
+}
+
+.pixelated {
+  image-rendering: pixelated;
+}
+
+/* ── Buttons ── */
+.btn-px {
+  --btn-bg: var(--gold);
+  --btn-fg: var(--ink);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 52px;
+  padding: 0 var(--space-6);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--btn-fg);
+  background: var(--btn-bg);
+  box-shadow:
+    0 -4px 0 0 var(--ink), 0 4px 0 0 var(--ink), -4px 0 0 0 var(--ink), 4px 0 0 0 var(--ink),
+    inset 0 -6px 0 0 rgb(0 0 0 / 0.22), inset 0 4px 0 0 rgb(255 255 255 / 0.45),
+    0 10px 0 0 rgb(15 29 58 / 0.3);
+  transition: transform var(--dur-fast) var(--ease-px), box-shadow var(--dur-fast) var(--ease-px), filter var(--dur-fast);
+  cursor: pointer;
+  user-select: none;
+}
+.btn-px:hover {
+  filter: brightness(1.08);
+  transform: translateY(-2px);
+}
+.btn-px:active {
+  transform: translateY(4px);
+  box-shadow:
+    0 -4px 0 0 var(--ink), 0 4px 0 0 var(--ink), -4px 0 0 0 var(--ink), 4px 0 0 0 var(--ink),
+    inset 0 -2px 0 0 rgb(0 0 0 / 0.22), inset 0 4px 0 0 rgb(255 255 255 / 0.45),
+    0 4px 0 0 rgb(15 29 58 / 0.3);
+}
+.btn-px[aria-disabled="true"],
+.btn-px:disabled {
+  --btn-bg: var(--stone);
+  filter: grayscale(0.6);
+  cursor: not-allowed;
+  transform: none;
+}
+.btn-px--ghost {
+  --btn-bg: var(--cloud);
+}
+.btn-px--grass {
+  --btn-bg: var(--grass);
+}
+.btn-px--sm {
+  min-height: 40px;
+  padding: 0 var(--space-4);
+  font-size: 14px;
+}
+
+/* ── Sky scene ── */
+.sky {
+  background:
+    linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 45%, var(--sky-low) 100%);
+}
+
+.cloud-px {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  color: var(--cloud);
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+
+@keyframes drift {
+  from { transform: translateX(-20vw); }
+  to { transform: translateX(120vw); }
+}
+.drift {
+  animation: drift linear infinite;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
+}
+
+/* Grass lip that caps the dirt layer, drawn as a stepped pixel edge. */
+.grass-lip {
+  height: 28px;
+  background:
+    linear-gradient(90deg, var(--grass-hi) 0 8px, transparent 8px 16px) 0 0 / 16px 4px repeat-x,
+    linear-gradient(180deg, var(--grass) 0 16px, var(--grass-dk) 16px 22px, var(--grass-ink) 22px 28px);
+}
+.grass-tufts {
+  height: 12px;
+  background:
+    linear-gradient(90deg, transparent 0 4px, var(--grass) 4px 8px, transparent 8px 20px, var(--grass) 20px 28px, transparent 28px 40px) 0 4px / 40px 8px repeat-x,
+    linear-gradient(90deg, transparent 0 20px, var(--grass) 20px 24px, transparent 24px 40px) 0 0 / 40px 4px repeat-x;
+}
+
+/* Strata tiles are generated by scripts/make-tiles.mjs (64px, seamless). */
+.dirt {
+  background: #8f6138 url("/assets/tile-dirt.svg") 0 0 / 64px 64px repeat;
+  image-rendering: pixelated;
+}
+.stone {
+  background: #6f6e6c url("/assets/tile-stone.svg") 0 0 / 64px 64px repeat;
+}
+.bedrock {
+  background: #232228 url("/assets/tile-bedrock.svg") 0 0 / 64px 64px repeat;
+}
+.on-dark-tile {
+  text-shadow: 2px 2px 0 rgb(0 0 0 / 0.45);
+}
+/* Stepped seam between two strata, drawn in the lower layer's colour. */
+.strata-edge {
+  height: 16px;
+  background:
+    linear-gradient(90deg, currentColor 0 16px, transparent 16px 32px, currentColor 32px 40px, transparent 40px 56px, currentColor 56px 64px) 0 0 / 64px 8px repeat-x,
+    linear-gradient(currentColor, currentColor) 0 8px / 100% 8px no-repeat;
+}
+
+/* ── Countdown ── */
+.timer-digits {
+  font-family: var(--font-digits);
+  font-variant-numeric: tabular-nums;
+  line-height: 0.82;
+  letter-spacing: 0.02em;
+}
+
+@keyframes pulse-gold {
+  0%, 100% { color: #fff; }
+  50% { color: var(--gold); }
+}
+@keyframes shake-px {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(-3px, 0); }
+  75% { transform: translate(3px, 0); }
+}
+.timer--warn .timer-digits { animation: pulse-gold 1s steps(2, end) infinite; }
+.timer--danger .timer-digits { color: var(--gold); animation: shake-px 0.3s steps(2, end) infinite; }
+
+@keyframes flash-reset {
+  0% { filter: brightness(2.2); transform: scale(1.06); }
+  100% { filter: none; transform: none; }
+}
+.timer--reset { animation: flash-reset 0.6s steps(6, end); }
+
+/* New king: the card drops onto the hill, the crown lands a beat later. */
+@keyframes drop-in {
+  0% { transform: translateY(-48px); opacity: 0; }
+  60% { transform: translateY(4px); opacity: 1; }
+  100% { transform: translateY(0); }
+}
+@keyframes crown-land {
+  0% { transform: translate(-50%, -64px) rotate(-12deg); opacity: 0; }
+  70% { transform: translate(-50%, 4px) rotate(4deg); opacity: 1; }
+  100% { transform: translate(-50%, 0) rotate(-8deg); }
+}
+.king-enter { animation: drop-in var(--dur-slow) steps(8, end) both; }
+.crown-enter { animation: crown-land 0.6s steps(8, end) 0.25s both; }
+
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.bob { animation: bob 2.4s steps(4, end) infinite; }
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+.blink { animation: blink 1s steps(1, end) infinite; }
+
+@keyframes rise {
+  from { transform: translateY(16px); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+.rise { animation: rise var(--dur-slow) var(--ease-out) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .drift { display: none; }
+}
