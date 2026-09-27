@@ -3,8 +3,8 @@ import { SUMMIT_ALTITUDE } from "./ScrollEngine";
 export const ZONES = [
   { id: "top", label: "Summit", hud: "#489ffa", hudEdge: "#0f1d3a" },
   { id: "challengers", label: "The slopes", hud: "#3f9a2c", hudEdge: "#1e441c" },
-  { id: "hall", label: "The mine", hud: "#5b3a22", hudEdge: "#2a1a0e" },
-  { id: "how", label: "Crystal caves", hud: "#2a2f5a", hudEdge: "#12142a" },
+  { id: "mine", label: "The mine", hud: "#5b3a22", hudEdge: "#2a1a0e" },
+  { id: "hall", label: "Crypt of kings", hud: "#3a2548", hudEdge: "#161a2e" },
   { id: "core", label: "The core", hud: "#3a1410", hudEdge: "#120606" },
 ] as const;
 
@@ -50,7 +50,7 @@ export function DepthMeter() {
         {/* climber */}
         <div id="alt-marker" className="absolute top-0 left-1/2 will-change-transform">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/assets/croc-head-256.webp" alt="" width={36} height={36} className="pixelated px-box -mt-[18px] -ml-[18px] h-9 w-9" />
+          <img src="/assets/logo-emblem-128.webp" alt="" width={40} height={40} className="pixelated -mt-[20px] -ml-[20px] h-10 w-10" />
         </div>
       </div>
     </nav>

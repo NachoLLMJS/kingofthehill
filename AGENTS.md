@@ -27,18 +27,19 @@ A game site for a Flap token: the **last GMGN call out** on the token holds the 
 ## Commands
 - `npm run dev -- --port 3217`, `npm run build`, `npm run lint`, `npx tsc --noEmit`.
 
-## Design direction: "The Descent" (settled 2026-09-27, v2)
-The page is one continuous descent down the king's mountain. A fixed altimeter (≥1400px) counts 3,000m → 0m, and the HUD bar changes colour per layer.
-- **Summit** (hero): sky gradient, parallax far range, pixel clouds, birds, the croc on the peak, and the timer/king HUD.
-- **The slopes** (challengers): mountainside art, then a switchback trail. Camps alternate left/right on a rope, with flags and crowns as markers, between parallax cliff walls.
-- **The mine** (hall of kings): mine tunnel art, gold plaques lit by flickering torches, and a mine cart that rolls with scroll.
-- **Crystal caves** (how to play): cavern art, crystal-lit tablets, bats, and the cart riding the painted rail.
-- **The core** (footer): lava art with shimmer, rising embers, and a "Climb back to the summit" link.
+## Design direction: "The Descent" (v3, 2026-09-27)
+The whole page is one mountain, read top to bottom as a story. A fixed altimeter (≥1400px) counts 3,000m → 0m, and the HUD bar recolours per zone.
+- **Summit** (hero, title screen): new wordmark + clock on the left, the crowned croc on a peak in the centre (`summit-*.webp`, whose base fills the full width), and the current king on the right. The sky has parallax ranges, clouds and birds.
+- **The slopes** (challengers): the same mountain continues (`mountain-face-*`). The painted trail zig-zags down to a mine entrance, and challenger "camps" line the trail.
+- **The mine** (how to play): through the entrance into the tunnel. Three wooden signs hang on chains, a cart rolls with scroll, and a ladder drops into the **crystal caves**, where the two rules are carved on crystal tablets.
+- **Crypt of kings** (hall of kings): a royal crypt below the mine (`crypt-*`). Each crowned king is a stone tomb with their crown, between braziers.
+- **The core** (footer): lava, rising embers, and "Climb back to the summit". No disclaimers (Nicol's call).
 Avoid dark "crypto dashboard" styling, rounded corners, soft shadows, and smooth easing (use `steps()`).
+- Logo: `logo-wordmark-*` (hero h1, nav) and `logo-emblem-*` (nav, favicon `app/icon.png`, altimeter).
 - Engine: `components/ScrollEngine.tsx` (a single rAF loop that writes CSS vars and transforms). It handles `data-parallax`, `data-scrub` (→ `--scrub`), `data-reveal` (→ `.is-in`) and `data-zone` (→ `--hud`). Zones and the altimeter live in `components/Descent.tsx`. Sprites are pixel-map SVGs in `components/sprites.tsx` and `pixel.tsx`.
 - Colours are sampled from the logo (`app/globals.css`): sky `#489ffa→#6dcbfb`, grass `#94df50`, gold `#fbd322`, ruby `#c23729`, parchment `#fff6dc`, ink `#0f1d3a`. Zone HUD colours are in `ZONES`.
 - Fonts: Pixelify Sans (display), Jersey 10 (numbers), DotGothic16 with a CJK fallback (body).
-- Art (Higgsfield GPT Image 2.5 Sunburst, logo as style reference): originals in `assets-src/*-v01.png`, WebP finals in `public/assets/` (`far-range`, `slope`, `cliff`, `mine`, `cavern`, `core`). Alpha on transparent layers is thresholded for crisp pixels.
+- Art (Higgsfield GPT Image 2.5 Sunburst, logo as style reference): originals in `assets-src/*-v01.png`, WebP finals in `public/assets/`. Alpha on transparent layers is thresholded for crisp pixels, and transparent logos are cropped to their bounds.
 - Reduced motion: parallax, the scrub cart, birds, bats and embers are disabled, and reveals show immediately.
 
 ## Launching the real token (env only, no code changes)

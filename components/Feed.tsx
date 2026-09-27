@@ -17,60 +17,40 @@ export function Feed({ state, now }: { state: GameState; now: number }) {
   const { stats } = state;
 
   return (
-    <section id="challengers" aria-labelledby="feed-title" className="relative scroll-mt-16 bg-[#86592f]" {...zoneAttrs("challengers")}>
-      {/* Over the edge of the summit plateau… */}
-      <div className="absolute inset-x-0 -top-6 z-10" aria-hidden>
-        <Edge fill="#94df50" seed={5} height={32} />
-        <div className="h-3 bg-[#3f9a2c]" />
-      </div>
-      {/* …and down the mountainside. The art's own sky is cropped away. */}
-      <div className="relative overflow-hidden sm:h-[600px] lg:h-[660px]">
-        <div data-parallax="0.12" className="absolute inset-x-0 top-[-60px] h-[400px] will-change-transform sm:top-auto sm:-top-[42%] sm:-bottom-[6%] sm:h-auto">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/assets/slope-1920.webp"
-            srcSet="/assets/slope-960.webp 960w, /assets/slope-1920.webp 1920w"
-            sizes="100vw"
-            alt="Pixel-art mountainside with grassy ledges, pine trees and a rope bridge"
-            width={1920}
-            height={1086}
-            loading="lazy"
-            className="pixelated h-full w-full object-cover object-[50%_40%]"
-          />
-        </div>
-        <div className="absolute inset-x-0 top-[200px] h-40 bg-gradient-to-b from-transparent to-[#86592f] sm:top-auto sm:bottom-0" />
+    <section id="challengers" aria-labelledby="feed-title" className="relative scroll-mt-16 overflow-hidden bg-[#5f5e5d]" {...zoneAttrs("challengers")}>
+      {/* One painted mountainside: the trail winds down to the mine entrance at the bottom. */}
+      <div
+        className="absolute inset-0 bg-[image:image-set(url(/assets/mountain-face-800.webp)_1x,url(/assets/mountain-face-1360.webp)_2x)] bg-cover bg-[position:50%_100%] [image-rendering:pixelated] lg:bg-[image:url(/assets/mountain-face-1360.webp)]"
+        aria-hidden
+      />
+      <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgb(15_29_58/.05),rgb(15_29_58/.25)_40%,rgb(15_29_58/.25)_75%,transparent_92%)]" aria-hidden />
 
-        <div className="relative mx-auto flex h-full max-w-[1240px] items-end px-4 pt-[250px] pb-10 sm:px-6 sm:pt-0">
-          <header data-reveal className="px-box max-w-[560px] bg-parchment p-6 text-ink sm:p-8">
-            <p className="font-display text-sm font-bold tracking-[0.2em] text-grass-dk uppercase">2,000m · the slopes</p>
-            <h2 id="feed-title" className="mt-2 font-display text-4xl leading-none font-bold sm:text-5xl">
-              Every call out knocks the king off.
-            </h2>
-            <p className="mt-4 text-[15px] leading-relaxed text-ink-soft">
-              The trail down from the summit, newest first. Each camp shows how long that caller held the hill. Call outs during the 1-minute break don’t count.
-            </p>
-            <dl className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <Stat label="Call outs" value={String(stats.callouts)} />
-              <Stat label="Challengers" value={String(stats.challengers)} />
-              <Stat label="Kings" value={String(stats.rounds)} />
-              <Stat label="Longest round" value={duration(stats.longestRoundMs).split(" ")[0]} />
-            </dl>
-          </header>
-        </div>
-      </div>
+      <div className="relative mx-auto max-w-[1100px] px-4 pt-16 sm:px-6">
+        <header data-reveal className="px-box mx-auto max-w-[620px] bg-parchment p-6 text-center text-ink sm:p-8">
+          <p className="font-display text-sm font-bold tracking-[0.2em] text-grass-dk uppercase">2,000m · the slopes</p>
+          <h2 id="feed-title" className="mt-2 font-display text-4xl leading-none font-bold sm:text-5xl">
+            The challengers are climbing.
+          </h2>
+          <p className="mx-auto mt-4 max-w-[46ch] text-[15px] leading-relaxed text-ink-soft">
+            Every call out on GMGN is a challenger heading for the summit, newest first. Each one knocks the king off and resets the clock.
+          </p>
+          <dl className="mt-6 grid grid-cols-2 gap-3 text-left sm:grid-cols-4">
+            <Stat label="Call outs" value={String(stats.callouts)} />
+            <Stat label="Challengers" value={String(stats.challengers)} />
+            <Stat label="Kings" value={String(stats.rounds)} />
+            <Stat label="Longest round" value={duration(stats.longestRoundMs).split(" ")[0]} />
+          </dl>
+        </header>
 
-      {/* The switchback trail */}
-      <div className="dirt relative overflow-hidden pt-6 pb-28">
-        <Cliffs />
-        <div className="relative mx-auto max-w-[1100px] px-4 sm:px-6">
+        <div className="relative mt-16">
           {items.length === 0 ? (
             <div className="px-box mx-auto max-w-[520px] bg-parchment p-8 text-center text-ink">
               <p className="font-display text-xl font-bold uppercase">No challengers yet</p>
-              <p className="mt-2 text-[15px]">The first call out on GMGN will set up camp here.</p>
+              <p className="mt-2 text-[15px]">The first call out on GMGN will set up camp on the trail.</p>
             </div>
           ) : (
             <ol className="relative" aria-label="Recent call outs, newest first">
-              <span className="trail-rope absolute top-0 bottom-0 left-[22px] w-1.5 lg:left-1/2 lg:-translate-x-1/2" aria-hidden />
+              <span className="trail-rope absolute top-0 bottom-0 left-[22px] w-1.5 opacity-80 lg:left-1/2 lg:-translate-x-1/2" aria-hidden />
               {items.map((c, i) => (
                 <Camp key={c.id} c={c} i={i} now={now} isKing={state.status === "live" && state.king?.id === c.id} />
               ))}
@@ -86,7 +66,14 @@ export function Feed({ state, now }: { state: GameState; now: number }) {
           ) : null}
         </div>
       </div>
-      <Edge fill="#2a1a0e" seed={3} height={48} className="relative -mt-12" />
+
+      {/* The trail ends at the mine: leave room so the painted entrance shows. */}
+      <div className="relative flex h-[300px] items-start justify-center pt-6 sm:h-[360px] lg:h-[420px]">
+        <a href="#mine" className="px-box bg-[#5b3a22] px-4 py-2 font-display text-sm font-bold tracking-[0.18em] text-gold uppercase hover:bg-[#7a5030]">
+          Enter the mine <span aria-hidden>▼</span>
+        </a>
+      </div>
+      <Edge fill="#0b0704" seed={9} height={40} className="relative -mt-10" />
     </section>
   );
 }
@@ -139,20 +126,6 @@ function ReignTag({ c, isKing, now }: { c: FeedItem; isKing: boolean; now: numbe
     <span className="inline-block border-2 border-ink/30 px-2 py-0.5 font-display text-xs font-bold tracking-wider text-ink-soft uppercase">
       Held {duration(c.reignMs ?? 0)} · round {c.round}
     </span>
-  );
-}
-
-// Cliff walls framing the trail, drifting at a different speed than the page.
-function Cliffs() {
-  return (
-    <div className="pointer-events-none absolute inset-0 hidden lg:block" aria-hidden>
-      <div className="absolute top-0 right-0 bottom-0 w-[240px] overflow-hidden">
-        <div data-parallax="-0.15" className="absolute inset-x-0 -top-[20%] -bottom-[20%] bg-[url(/assets/cliff-900.webp)] bg-[length:100%_auto] bg-repeat-y [image-rendering:pixelated]" />
-      </div>
-      <div className="absolute top-0 bottom-0 left-0 w-[200px] -scale-x-100 overflow-hidden opacity-90">
-        <div data-parallax="-0.08" className="absolute inset-x-0 -top-[20%] -bottom-[20%] bg-[url(/assets/cliff-900.webp)] bg-[length:100%_auto] bg-repeat-y [background-position:0_300px] [image-rendering:pixelated]" />
-      </div>
-    </div>
   );
 }
 

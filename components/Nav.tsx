@@ -4,8 +4,8 @@ import { CopyButton } from "./CopyButton";
 
 const LINKS = [
   { href: "#challengers", zone: "challengers", label: "Challengers" },
+  { href: "#mine", zone: "mine", label: "How to play" },
   { href: "#hall", zone: "hall", label: "Hall of kings" },
-  { href: "#how", zone: "how", label: "How to play" },
 ];
 
 export function Nav() {
@@ -18,11 +18,9 @@ export function Nav() {
       <nav aria-label="Main" className="mx-auto flex h-16 max-w-[1240px] items-center gap-4 px-4 sm:px-6">
         <a href="#top" className="flex items-center gap-3" aria-label="King of the Hill — home">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/assets/croc-head-256.webp" alt="" width={40} height={40} className="pixelated px-box h-10 w-10" />
-          <span className="px-outline-sm font-display text-lg leading-none font-bold tracking-wide uppercase sm:text-xl">
-            King of
-            <br className="sm:hidden" /> the Hill
-          </span>
+          <img src="/assets/logo-emblem-128.webp" alt="" width={44} height={44} className="pixelated h-11 w-11" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/assets/logo-wordmark-600.webp" alt="King of the Hill" width={600} height={227} className="pixelated h-9 w-auto" />
         </a>
 
         <ul className="ml-6 hidden items-center gap-1 lg:flex">

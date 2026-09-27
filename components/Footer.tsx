@@ -36,12 +36,10 @@ export function Footer() {
           <p className="font-display text-sm font-bold tracking-[0.2em] text-[#ff9a3c] uppercase">0m · the core</p>
           <div className="mt-3 flex items-center gap-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/assets/croc-head-256.webp" alt="" width={48} height={48} loading="lazy" className="pixelated px-box h-12 w-12" />
+            <img src="/assets/logo-emblem-128.webp" alt="" width={56} height={56} loading="lazy" className="pixelated h-14 w-14" />
             <p className="font-display text-3xl font-bold uppercase">King of the Hill</p>
           </div>
-          <p className="mt-4 text-sm leading-relaxed text-cloud/75">
-            A game played with GMGN call outs. Not affiliated with GMGN or Flap. Nothing here is financial advice; memecoins can go to zero.
-          </p>
+          <p className="mt-4 font-display text-lg font-bold text-gold">Last call out takes the crown.</p>
           <a href="#top" className="btn-px btn-px--sm mt-6">
             <span aria-hidden>▲</span> Climb back to the summit
           </a>

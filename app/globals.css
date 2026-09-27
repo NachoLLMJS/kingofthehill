@@ -511,3 +511,51 @@ body {
     0 -4px 0 0 #0a0b18, 0 4px 0 0 #0a0b18, -4px 0 0 0 #0a0b18, 4px 0 0 0 #0a0b18,
     inset 0 4px 0 rgb(255 255 255 / 0.06), 0 16px 0 0 rgb(0 0 0 / 0.35), 0 0 32px rgb(88 224 245 / 0.25);
 }
+
+/* Wooden mine sign */
+.wood-sign {
+  background:
+    repeating-linear-gradient(180deg, transparent 0 30px, rgb(0 0 0 / 0.18) 30px 34px),
+    linear-gradient(180deg, #8a5a33, #6b4428);
+  box-shadow:
+    0 -4px 0 0 #2a1a0e, 0 4px 0 0 #2a1a0e, -4px 0 0 0 #2a1a0e, 4px 0 0 0 #2a1a0e,
+    inset 0 4px 0 rgb(255 255 255 / 0.12), 0 14px 0 0 rgb(0 0 0 / 0.35);
+}
+.wood-sign::before,
+.wood-sign::after {
+  content: "";
+  position: absolute;
+  top: 10px;
+  width: 8px;
+  height: 8px;
+  background: #a9a8a6;
+  box-shadow: inset -2px -2px 0 #5f5e5d;
+}
+.wood-sign::before { left: 12px; }
+.wood-sign::after { right: 12px; }
+
+/* Ladder down the shaft */
+.ladder {
+  background:
+    linear-gradient(90deg, #7a5030 0 8px, transparent 8px calc(100% - 8px), #7a5030 calc(100% - 8px)) 0 0 / 100% 100%,
+    repeating-linear-gradient(180deg, transparent 0 16px, #9a6a3c 16px 24px);
+  box-shadow: 0 0 0 3px #1b1008;
+}
+
+/* Stone tomb in the crypt */
+.tomb {
+  background: linear-gradient(180deg, #4a4f6a 0%, #363a52 100%);
+  box-shadow:
+    0 -4px 0 0 #0d0f1c, 0 4px 0 0 #0d0f1c, -4px 0 0 0 #0d0f1c, 4px 0 0 0 #0d0f1c,
+    inset 0 6px 0 rgb(255 255 255 / 0.1), inset 0 -8px 0 rgb(0 0 0 / 0.25), 0 16px 0 0 rgb(0 0 0 / 0.4);
+}
+.tomb::before {
+  content: "";
+  position: absolute;
+  inset: 10px;
+  border: 3px solid rgb(251 211 34 / 0.35);
+  pointer-events: none;
+}
+.tomb--latest {
+  animation: plaque-shine 3s steps(3, end) infinite;
+}

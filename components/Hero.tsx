@@ -52,12 +52,21 @@ export function Hero({ state, now, connection }: { state: GameState; now: number
 
   const label = live ? "Time left on the hill" : crowned ? "King crowned · next round in" : open ? "The hill is open" : "Waiting for the first call out";
 
+  const card =
+    live && king ? (
+      <KingCard king={king} now={now} entrance={entrance} crowned={false} />
+    ) : crowned && winner ? (
+      <KingCard king={winner.callout} now={now} entrance={burst} crowned round={winner.round} />
+    ) : (
+      <OpenCard state={state} open={open} />
+    );
+
   return (
-    <section id="top" aria-labelledby="hero-title" className="sky relative overflow-hidden" {...zoneAttrs("top")}>
+    <section id="top" aria-labelledby="hero-title" className="sky relative flex flex-col overflow-hidden lg:block lg:min-h-[max(840px,calc(100svh-68px))]" {...zoneAttrs("top")}>
       <Sun />
       {/* Far range: drifts slower than the page, so the summit feels high up. */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[62%]" aria-hidden>
-        <div data-parallax="0.18" className="absolute inset-x-[-4%] bottom-[-6%] will-change-transform">
+      <div className="pointer-events-none absolute inset-x-0 bottom-[22%] h-[50%]" aria-hidden>
+        <div data-parallax="0.18" className="absolute inset-x-[-4%] bottom-0 will-change-transform">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/assets/far-range-1920.webp"
@@ -66,7 +75,7 @@ export function Hero({ state, now, connection }: { state: GameState; now: number
             alt=""
             width={1920}
             height={823}
-            className="pixelated w-full opacity-95"
+            className="pixelated w-full opacity-90"
           />
         </div>
       </div>
@@ -77,31 +86,55 @@ export function Hero({ state, now, connection }: { state: GameState; now: number
         {crowned && winner ? `${winner.callout.name} was crowned king of the hill.` : ""}
       </p>
 
-      <div className="relative mx-auto grid max-w-[1240px] grid-cols-1 gap-y-8 px-4 pt-6 pb-0 sm:px-6 lg:grid-cols-12 lg:gap-x-8 lg:pt-8">
-        {/* ── Left: HUD ── */}
-        <div className="relative z-10 lg:col-span-7 lg:pb-12">
-          <div className="flex flex-wrap items-center gap-2">
+      {/* The summit: the king's mountain fills the bottom edge so the slopes continue below. */}
+      <div className="pointer-events-none relative z-[5] mt-6 w-[190vw] shrink-0 max-w-none -translate-x-[23.7%] sm:w-[150vw] sm:-translate-x-[16.7%] lg:absolute lg:bottom-0 lg:left-1/2 lg:mt-0 lg:w-[max(1180px,100vw)] lg:max-w-[1900px] lg:-translate-x-1/2 order-last">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/assets/summit-1600.webp"
+          srcSet="/assets/summit-960.webp 960w, /assets/summit-1600.webp 1600w, /assets/summit-2400.webp 2400w"
+          sizes="(min-width: 1024px) 100vw, 190vw"
+          alt="The crowned GMGN crocodile standing on the summit of a grassy pixel-art mountain"
+          width={2400}
+          height={1357}
+          fetchPriority="high"
+          className={`pixelated block w-full ${crowned ? "bob" : ""}`}
+        />
+      </div>
+
+      <div className="relative z-10 mx-auto grid max-w-[1320px] grid-cols-1 gap-y-7 px-4 pt-6 sm:px-6 lg:grid-cols-12 lg:gap-x-6 lg:pt-8 lg:pb-[26vh]">
+        {/* ── Left: logo + clock ── */}
+        <div className="text-center lg:col-span-5 lg:text-left xl:col-span-4">
+          <h1 id="hero-title">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/assets/logo-wordmark-1200.webp"
+              srcSet="/assets/logo-wordmark-600.webp 600w, /assets/logo-wordmark-1200.webp 1200w"
+              sizes="(min-width: 1024px) 420px, 320px"
+              alt="King of the Hill"
+              width={1200}
+              height={454}
+              fetchPriority="high"
+              className="pixelated mx-auto w-[320px] drop-shadow-[0_6px_0_rgb(15_29_58/.3)] lg:mx-0 lg:w-[420px]"
+            />
+          </h1>
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2 lg:justify-start">
             <SourceBadge state={state} connection={connection} />
             <span className="px-outline-sm font-display text-sm font-bold uppercase tracking-[0.12em]">
-              {state.round > 0 ? `Round ${open ? state.round + 1 : state.round} · ` : ""}Every call out resets the clock
+              {state.round > 0 ? `Round ${open ? state.round + 1 : state.round} · ` : ""}Last call out takes the crown
             </span>
           </div>
-
-          <h1 id="hero-title" className="px-outline mt-4 max-w-[17ch] font-display text-[34px] leading-[0.98] font-bold sm:text-[46px] lg:text-[52px]">
-            Last call out takes the crown.
-          </h1>
 
           {/* Timer */}
           <div
             key={`t-${entrance}`}
-            className={`mt-6 ${tone} ${entrance ? "timer--reset" : ""}`}
+            className={`mt-5 ${tone} ${entrance ? "timer--reset" : ""}`}
             role="timer"
             aria-live="off"
             aria-label={live ? `${digits} left for the current king` : crowned ? `Next round in ${digits}` : label}
           >
             <p className={`px-outline-sm font-display text-base font-bold uppercase tracking-[0.18em] ${crowned ? "text-gold" : ""}`}>{label}</p>
-            <p className={`timer-digits px-outline mt-2 text-[144px] sm:text-[176px] lg:text-[216px] ${open ? "blink-slow" : ""}`}>{digits}</p>
-            <div className="mt-4 flex max-w-[560px] gap-1" aria-hidden>
+            <p className={`timer-digits px-outline mt-1 text-[128px] sm:text-[160px] lg:text-[176px] ${open ? "blink-slow" : ""}`}>{digits}</p>
+            <div className="mx-auto mt-3 flex max-w-[420px] gap-1 lg:mx-0" aria-hidden>
               {Array.from({ length: SEGMENTS }, (_, i) => {
                 const on = i < filled;
                 const color = crowned ? "var(--gold)" : live && phase.roundRemaining <= 60_000 ? "var(--gold)" : "var(--grass)";
@@ -119,54 +152,43 @@ export function Hero({ state, now, connection }: { state: GameState; now: number
             </div>
           </div>
 
-          <div className="mt-9">
-            {live && king ? (
-              <KingCard king={king} now={now} entrance={entrance} crowned={false} />
-            ) : crowned && winner ? (
-              <KingCard king={winner.callout} now={now} entrance={burst} crowned round={winner.round} />
-            ) : (
-              <OpenCard state={state} open={open} />
-            )}
-          </div>
-
-          <div className="mt-8 flex flex-wrap gap-5">
-            <a className="btn-px" href={GMGN_TOKEN_URL} target="_blank" rel="noopener noreferrer">
-              {open ? "Take the hill on GMGN" : "Call out on GMGN"} <span aria-hidden>↗</span>
-            </a>
-            <a className="btn-px btn-px--ghost" href={FLAP_TOKEN_URL} target="_blank" rel="noopener noreferrer">
-              Buy on Flap <span aria-hidden>↗</span>
-            </a>
+          <div className="mt-8 hidden flex-wrap gap-5 lg:flex">
+            <Ctas open={open} />
           </div>
         </div>
 
-        {/* ── Right: the hill ── */}
-        <div className="relative lg:col-span-5">
-          <div className="relative mx-auto aspect-square w-full max-w-[560px] lg:absolute lg:right-[-80px] lg:bottom-0 lg:w-[640px] lg:max-w-none">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/assets/hero-king-croc-960.webp"
-              srcSet="/assets/hero-king-croc-640.webp 640w, /assets/hero-king-croc-960.webp 960w, /assets/hero-king-croc-1254.webp 1254w"
-              sizes="(min-width: 1024px) 640px, 100vw"
-              alt="The GMGN crocodile wearing a gold crown, standing on top of a grassy pixel-art hill"
-              width={1254}
-              height={1254}
-              fetchPriority="high"
-              className={`pixelated h-full w-full [mask-image:linear-gradient(to_bottom,transparent_0%,black_22%),linear-gradient(to_right,transparent_0%,black_14%,black_88%,transparent_100%)] [mask-composite:intersect] ${crowned ? "bob" : ""}`}
-            />
+        {/* ── Right: the throne ── */}
+        <div className="lg:col-span-4 lg:col-start-9 lg:pt-6 xl:col-start-9">
+          {card}
+          <div className="mt-8 flex flex-wrap justify-center gap-5 lg:hidden">
+            <Ctas open={open} />
           </div>
         </div>
       </div>
 
       <a
         href="#challengers"
-        className="cue absolute bottom-5 left-1/2 z-20 hidden -translate-x-1/2 flex-col items-center gap-1 font-display text-xs font-bold tracking-[0.25em] text-white uppercase [text-shadow:2px_2px_0_var(--ink)] lg:flex"
+        className="cue absolute bottom-6 left-1/2 z-20 hidden -translate-x-1/2 flex-col items-center gap-1 font-display text-xs font-bold tracking-[0.25em] text-white uppercase [text-shadow:2px_2px_0_var(--ink)] lg:flex"
       >
         Descend
         <svg viewBox="0 0 7 4" className="w-6" shapeRendering="crispEdges" aria-hidden>
-          <path d="M0 0h7v1H6v1H5v1H4v1H3V3H2V2H1V1H0z" fill="#fff" stroke="none" />
+          <path d="M0 0h7v1H6v1H5v1H4v1H3V3H2V2H1V1H0z" fill="#fff" />
         </svg>
       </a>
     </section>
+  );
+}
+
+function Ctas({ open }: { open: boolean }) {
+  return (
+    <>
+      <a className="btn-px" href={GMGN_TOKEN_URL} target="_blank" rel="noopener noreferrer">
+        {open ? "Take the hill on GMGN" : "Call out on GMGN"} <span aria-hidden>↗</span>
+      </a>
+      <a className="btn-px btn-px--ghost" href={FLAP_TOKEN_URL} target="_blank" rel="noopener noreferrer">
+        Buy on Flap <span aria-hidden>↗</span>
+      </a>
+    </>
   );
 }
 

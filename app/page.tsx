@@ -1,7 +1,6 @@
 import { DepthMeter } from "@/components/Descent";
 import { Footer } from "@/components/Footer";
 import { Game } from "@/components/Game";
-import { HowTo } from "@/components/HowTo";
 import { Nav } from "@/components/Nav";
 import { ScrollEngine } from "@/components/ScrollEngine";
 import { getGameState } from "@/lib/state";
@@ -17,7 +16,6 @@ export default async function Home() {
       <DepthMeter />
       <main id="main">
         <Game initial={initial} />
-        <HowTo />
       </main>
       <Footer />
     </>
