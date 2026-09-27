@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { PixelCrown } from "./pixel";
 
 const COLORS = ["#fbd322", "#e0a412", "#c23729", "#94df50", "#c5f14e", "#58b2fa", "#f4f9ff", "#f8ce5e"];
-const DURATION = 4200;
+const DURATION = 5000;
 
 // Square pixel confetti on a full-screen canvas. `burst` changes → new burst.
 export function Confetti({ burst, name }: { burst: number; name?: string }) {
@@ -30,18 +30,21 @@ export function Confetti({ burst, name }: { burst: number; name?: string }) {
 
     const w = (canvas.width = window.innerWidth);
     const h = (canvas.height = window.innerHeight);
-    const count = Math.min(220, Math.round(w / 6));
+    const count = Math.min(300, Math.round(w / 4));
+    // Two cannons fire from the sides, then a slower rain falls from the top.
     const bits = Array.from({ length: count }, (_, i) => {
+      const rain = i % 3 === 2;
       const fromLeft = i % 2 === 0;
       return {
-        x: fromLeft ? -10 : w + 10,
-        y: h * (0.35 + Math.random() * 0.35),
-        vx: (fromLeft ? 1 : -1) * (4 + Math.random() * 9),
-        vy: -(9 + Math.random() * 11),
+        x: rain ? Math.random() * w : fromLeft ? -10 : w + 10,
+        y: rain ? -20 - Math.random() * h * 0.5 : h * (0.35 + Math.random() * 0.35),
+        vx: rain ? (Math.random() - 0.5) * 2 : (fromLeft ? 1 : -1) * (4 + Math.random() * 9),
+        vy: rain ? 1 + Math.random() * 2 : -(9 + Math.random() * 11),
+        g: rain ? 0.05 : 0.3,
         size: 4 * (1 + Math.floor(Math.random() * 3)),
         color: COLORS[i % COLORS.length],
         flip: Math.random() * Math.PI,
-        delay: Math.random() * 350,
+        delay: rain ? 300 + Math.random() * 1200 : Math.random() * 350,
       };
     });
 
@@ -52,7 +55,7 @@ export function Confetti({ burst, name }: { burst: number; name?: string }) {
       ctx.clearRect(0, 0, w, h);
       for (const b of bits) {
         if (el < b.delay) continue;
-        b.vy += 0.35;
+        b.vy = Math.min(b.vy + b.g, 7);
         b.vx *= 0.985;
         b.x += b.vx;
         b.y += b.vy;
