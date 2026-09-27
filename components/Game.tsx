@@ -12,7 +12,6 @@ export function Game({ initial }: { initial: GameState }) {
     <>
       <Hero state={state} now={now} connection={connection} />
       <Feed state={state} now={now} />
-      <div className="strata-edge relative" style={{ color: "#5f5e5c", marginTop: -16 }} aria-hidden />
       <Hall state={state} />
     </>
   );

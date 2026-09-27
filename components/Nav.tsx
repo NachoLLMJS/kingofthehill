@@ -3,14 +3,15 @@ import { shortAddr } from "@/lib/format";
 import { CopyButton } from "./CopyButton";
 
 const LINKS = [
-  { href: "#challengers", label: "Challengers" },
-  { href: "#hall", label: "Hall of kings" },
-  { href: "#how", label: "How to play" },
+  { href: "#challengers", zone: "challengers", label: "Challengers" },
+  { href: "#hall", zone: "hall", label: "Hall of kings" },
+  { href: "#how", zone: "how", label: "How to play" },
 ];
 
 export function Nav() {
   return (
-    <header className="sticky top-0 z-40 border-b-4 border-ink" style={{ background: "color-mix(in srgb, var(--sky-top) 94%, transparent)" }}>
+    <header className="hud-bar sticky top-0 z-40 border-b-4">
+      <span className="hud-progress absolute right-0 bottom-[-4px] left-0 h-1 bg-gold" aria-hidden />
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:bg-gold focus:px-3 focus:py-2 focus:font-display">
         Skip to content
       </a>
@@ -27,7 +28,11 @@ export function Nav() {
         <ul className="ml-6 hidden items-center gap-1 lg:flex">
           {LINKS.map((l) => (
             <li key={l.href}>
-              <a href={l.href} className="px-3 py-2 font-display text-sm font-bold tracking-wide text-ink uppercase hover:bg-ink hover:text-gold">
+              <a
+                href={l.href}
+                data-zone-link={l.zone}
+                className="px-outline-sm px-3 py-2 font-display text-sm font-bold tracking-wide uppercase hover:bg-ink hover:text-gold aria-[current]:bg-ink aria-[current]:text-gold"
+              >
                 {l.label}
               </a>
             </li>

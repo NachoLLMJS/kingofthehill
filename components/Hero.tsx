@@ -8,7 +8,9 @@ import type { Callout, GameState } from "@/lib/types";
 import type { Connection } from "./useGame";
 import { Confetti } from "./Confetti";
 import { CopyButton } from "./CopyButton";
+import { zoneAttrs } from "./Descent";
 import { PixelAvatar, PixelCloud, PixelCrown } from "./pixel";
+import { Bird } from "./sprites";
 
 const SEGMENTS = 20;
 
@@ -51,8 +53,25 @@ export function Hero({ state, now, connection }: { state: GameState; now: number
   const label = live ? "Time left on the hill" : crowned ? "King crowned · next round in" : open ? "The hill is open" : "Waiting for the first call out";
 
   return (
-    <section id="top" aria-labelledby="hero-title" className="sky relative overflow-hidden">
+    <section id="top" aria-labelledby="hero-title" className="sky relative overflow-hidden" {...zoneAttrs("top")}>
+      <Sun />
+      {/* Far range: drifts slower than the page, so the summit feels high up. */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[62%]" aria-hidden>
+        <div data-parallax="0.18" className="absolute inset-x-[-4%] bottom-[-6%] will-change-transform">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/assets/far-range-1920.webp"
+            srcSet="/assets/far-range-1280.webp 1280w, /assets/far-range-1920.webp 1920w"
+            sizes="108vw"
+            alt=""
+            width={1920}
+            height={823}
+            className="pixelated w-full opacity-95"
+          />
+        </div>
+      </div>
       <Clouds />
+      <Birds />
       <Confetti burst={burst} name={winner?.callout.name} />
       <p className="sr-only" aria-live="polite">
         {crowned && winner ? `${winner.callout.name} was crowned king of the hill.` : ""}
@@ -138,8 +157,15 @@ export function Hero({ state, now, connection }: { state: GameState; now: number
         </div>
       </div>
 
-      <div className="grass-tufts relative z-10" aria-hidden />
-      <div className="grass-lip relative z-10" aria-hidden />
+      <a
+        href="#challengers"
+        className="cue absolute bottom-5 left-1/2 z-20 hidden -translate-x-1/2 flex-col items-center gap-1 font-display text-xs font-bold tracking-[0.25em] text-white uppercase [text-shadow:2px_2px_0_var(--ink)] lg:flex"
+      >
+        Descend
+        <svg viewBox="0 0 7 4" className="w-6" shapeRendering="crispEdges" aria-hidden>
+          <path d="M0 0h7v1H6v1H5v1H4v1H3V3H2V2H1V1H0z" fill="#fff" stroke="none" />
+        </svg>
+      </a>
     </section>
   );
 }
@@ -241,9 +267,34 @@ function SourceBadge({ state, connection }: { state: GameState; connection: Conn
   );
 }
 
+function Sun() {
+  return (
+    <div className="pointer-events-none absolute top-[7%] right-[9%] h-24 w-24" aria-hidden data-parallax="0.08">
+      <div className="absolute inset-[-60%] bg-[radial-gradient(circle,rgb(255_250_223/.55)_0_22%,rgb(255_250_223/.18)_38%,transparent_60%)]" />
+      <div className="absolute inset-[22%] bg-[#fbfadf] shadow-[0_0_0_6px_rgb(251_250_223/.45),0_0_0_12px_rgb(251_250_223/.2)]" />
+    </div>
+  );
+}
+
+function Birds() {
+  return (
+    <div className="pointer-events-none absolute inset-x-0 top-[14%] h-40" aria-hidden>
+      <div className="fly absolute top-0 left-0" style={{ animationDuration: "38s", animationDelay: "-6s" }}>
+        <Bird style={{ left: 0, top: 0 }} />
+        <Bird style={{ left: 26, top: 14, transform: "scale(.8)" }} />
+        <Bird style={{ left: -18, top: 20, transform: "scale(.7)" }} />
+      </div>
+      <div className="fly absolute top-20 left-0" style={{ animationDuration: "52s", animationDelay: "-30s" }}>
+        <Bird style={{ left: 0, top: 0, transform: "scale(.7)" }} />
+        <Bird style={{ left: 22, top: 10, transform: "scale(.6)" }} />
+      </div>
+    </div>
+  );
+}
+
 function Clouds() {
   return (
-    <div className="pointer-events-none absolute inset-0" aria-hidden>
+    <div className="pointer-events-none absolute inset-0" aria-hidden data-parallax="0.1">
       <PixelCloud className="drift absolute top-[12%] w-40 opacity-90" style={{ animationDuration: "140s", animationDelay: "-40s" }} />
       <PixelCloud className="drift absolute top-[34%] w-24 opacity-80" style={{ animationDuration: "180s", animationDelay: "-120s" }} />
       <PixelCloud className="drift absolute top-[6%] w-28 opacity-70" style={{ animationDuration: "220s", animationDelay: "-10s" }} />

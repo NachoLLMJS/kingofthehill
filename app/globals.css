@@ -338,3 +338,176 @@ body {
   }
   .drift { display: none; }
 }
+
+/* ───────────── The descent: HUD, reveals and sprite animation ───────────── */
+:root {
+  --hud: #489ffa;
+  --hud-edge: #0f1d3a;
+}
+
+.hud-bar {
+  background: color-mix(in srgb, var(--hud) 92%, transparent);
+  border-bottom-color: var(--hud-edge);
+  transition: background-color 0.6s steps(6, end), border-color 0.6s steps(6, end);
+}
+.hud-progress {
+  transform-origin: left;
+  transform: scaleX(var(--p, 0));
+}
+
+/* Depth meter labels: visible for the current zone, on hover for the rest. */
+.zone-stop-label {
+  color: var(--cloud);
+  text-shadow: 2px 2px 0 var(--ink);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity var(--dur-mid) steps(3, end), transform var(--dur-mid) steps(3, end);
+}
+.zone-stop:hover .zone-stop-label,
+.zone-stop:focus-visible .zone-stop-label,
+.zone-stop[aria-current] .zone-stop-label {
+  opacity: 1;
+  transform: none;
+}
+.zone-stop[aria-current] > span:first-child {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+/* Reveal on scroll: stepped rise, children stagger via --i. */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.5s steps(5, end), transform 0.5s steps(5, end);
+  transition-delay: calc(var(--i, 0) * 70ms);
+}
+[data-reveal="left"] { transform: translateX(-48px); }
+[data-reveal="right"] { transform: translateX(48px); }
+[data-reveal="drop"] { transform: translateY(-40px); }
+[data-reveal].is-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* Birds: two frames swapped with steps. */
+.bird { position: absolute; display: block; width: 20px; height: 12px; }
+.bird > svg { position: absolute; inset: 0; }
+.bird-b { animation: frame-b 0.5s steps(1, end) infinite; }
+.bird-a { animation: frame-a 0.5s steps(1, end) infinite; }
+@keyframes frame-a { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+@keyframes frame-b { 0%, 49% { opacity: 0; } 50%, 100% { opacity: 1; } }
+@keyframes fly {
+  from { transform: translate(-10vw, 0); }
+  50% { transform: translate(55vw, -30px); }
+  to { transform: translate(120vw, 10px); }
+}
+.fly { animation: fly linear infinite; }
+
+/* Torches */
+.torch-flame { animation: flicker 0.45s steps(2, end) infinite; transform-origin: 50% 100%; }
+@keyframes flicker {
+  0% { transform: scaleY(1) translateX(0); }
+  50% { transform: scaleY(0.92) translateX(0.5px); }
+  100% { transform: scaleY(1.04) translateX(-0.5px); }
+}
+.torch-glow {
+  position: absolute;
+  left: 50%;
+  top: 10%;
+  width: 600%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  background: radial-gradient(circle, rgb(251 211 34 / 0.35) 0 20%, rgb(232 96 28 / 0.12) 40%, transparent 65%);
+  animation: glow 1.8s steps(3, end) infinite alternate;
+  pointer-events: none;
+}
+@keyframes glow { from { opacity: 0.7; } to { opacity: 1; } }
+
+/* Bats */
+.bat { animation: bat-flap 0.3s steps(2, end) infinite; }
+@keyframes bat-flap { 50% { transform: scaleY(0.6); } }
+@keyframes bat-path {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(18vw, 30px); }
+  50% { transform: translate(36vw, -10px); }
+  75% { transform: translate(54vw, 40px); }
+  100% { transform: translate(72vw, 0); }
+}
+.bat-path { animation: bat-path 14s steps(56, end) infinite alternate; }
+
+/* Gems & embers */
+.gem { animation: gem-shine 2.4s steps(4, end) infinite; }
+@keyframes gem-shine { 0%, 70%, 100% { filter: none; } 80% { filter: brightness(1.8); } }
+@keyframes ember {
+  from { transform: translate(0, 0); opacity: 0; }
+  10% { opacity: 1; }
+  to { transform: translate(var(--dx, 10px), -60vh); opacity: 0; }
+}
+.ember {
+  position: absolute;
+  bottom: 0;
+  width: 4px;
+  height: 4px;
+  background: #fbd322;
+  box-shadow: 0 0 6px #e8601c;
+  animation: ember linear infinite;
+}
+@keyframes lava-shimmer { 50% { filter: brightness(1.15) saturate(1.1); } }
+.lava-shimmer { animation: lava-shimmer 3s steps(3, end) infinite; }
+
+/* Scroll cue */
+@keyframes cue { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(8px); } }
+.cue { animation: cue 1.2s steps(2, end) infinite; }
+
+/* Mine cart rides the rail as its section scrolls through (--scrub 0..1). */
+.cart-ride {
+  transform: translateX(calc(var(--scrub, 0.5) * (100cqw - 100%)));
+}
+.rail {
+  height: 12px;
+  background:
+    linear-gradient(#a9a8a6 0 4px, transparent 4px) 0 0 / 100% 12px no-repeat,
+    repeating-linear-gradient(90deg, #7a5030 0 12px, transparent 12px 32px) 0 4px / 100% 8px no-repeat;
+}
+
+/* Trail between challengers */
+.trail-rope {
+  background: repeating-linear-gradient(to bottom, #e8d7a8 0 10px, transparent 10px 18px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] { opacity: 1 !important; transform: none !important; }
+  .fly, .bat-path, .ember { display: none; }
+}
+
+/* Gold plaque on the mine wall */
+.plaque {
+  background: linear-gradient(180deg, #5b3a22 0%, #4a2e1a 100%);
+  box-shadow:
+    0 -4px 0 0 #fbd322, 0 4px 0 0 #fbd322, -4px 0 0 0 #fbd322, 4px 0 0 0 #fbd322,
+    0 -8px 0 0 #483114, 0 8px 0 0 #483114, -8px 0 0 0 #483114, 8px 0 0 0 #483114,
+    inset 0 4px 0 rgb(255 255 255 / 0.08), 0 16px 0 0 rgb(0 0 0 / 0.35);
+}
+.plaque--latest {
+  animation: plaque-shine 3s steps(3, end) infinite;
+}
+@keyframes plaque-shine {
+  0%, 80%, 100% { filter: none; }
+  90% { filter: brightness(1.25); }
+}
+
+/* Crystal-lit stone tablet */
+.crystal-tablet {
+  --gem: #58e0f5;
+  background: linear-gradient(180deg, rgb(28 32 64 / 0.92), rgb(18 20 42 / 0.94));
+  box-shadow:
+    0 -4px 0 0 #0a0b18, 0 4px 0 0 #0a0b18, -4px 0 0 0 #0a0b18, 4px 0 0 0 #0a0b18,
+    inset 0 4px 0 rgb(255 255 255 / 0.06), 0 12px 0 0 rgb(0 0 0 / 0.35);
+  transition: box-shadow var(--dur-mid) steps(3, end), translate var(--dur-mid) steps(3, end);
+}
+.crystal-tablet:hover {
+  translate: 0 -4px;
+  box-shadow:
+    0 -4px 0 0 #0a0b18, 0 4px 0 0 #0a0b18, -4px 0 0 0 #0a0b18, 4px 0 0 0 #0a0b18,
+    inset 0 4px 0 rgb(255 255 255 / 0.06), 0 16px 0 0 rgb(0 0 0 / 0.35), 0 0 32px rgb(88 224 245 / 0.25);
+}
