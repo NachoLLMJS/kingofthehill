@@ -41,18 +41,30 @@ export function Edge({ fill, seed = 1, height = 40, flip = false, className = ""
 }
 
 const STRATA = {
-  ground: { w: 1920, h: 480, alt: "Cross-section of the ground: grass, roots and rock, with a mine shaft and ladder going down" },
-  rock: { w: 1920, h: 584, alt: "Deep rock layers with crystals and gold veins; the shaft ladder leads down into the crypt's stone arches" },
-  magma: { w: 1920, h: 490, alt: "Basalt with glowing lava cracks; stone stairs lead down to the core" },
+  ground: { w: 1920, h: 490, alt: "Cross-section of the ground: grass, roots, soil and rock" },
+  rock: { w: 1920, h: 588, alt: "Deep rock with crystals and gold veins above the crypt's stone arches" },
+  magma: { w: 1920, h: 500, alt: "Basalt with glowing lava cracks at the bottom of the mountain" },
 } as const;
 
 // A cross-section band of rock that bridges two layers of the descent. It
-// overlaps both neighbours (negative margins) so there is never a hard cut,
-// and its central shaft (ladder, then stairs) is the thread down the page.
-// overlapTop / overlapBottom are fractions of the band's rendered height.
-export function Stratum({ kind, overlapTop, overlapBottom }: { kind: keyof typeof STRATA; overlapTop: number; overlapBottom: number }) {
+// overlaps both neighbours (negative margins, as fractions of its rendered
+// height) so there is never a hard cut. `height` shows a shorter band cropped
+// from the top (its jagged bottom edge is kept), faded into the layer above.
+export function Stratum({
+  kind,
+  overlapTop,
+  overlapBottom,
+  height,
+  fadeFrom,
+}: {
+  kind: keyof typeof STRATA;
+  overlapTop: number;
+  overlapBottom: number;
+  height?: string;
+  fadeFrom?: string;
+}) {
   const a = STRATA[kind];
-  const h = `(max(100vw, 760px) * ${a.h / a.w})`;
+  const h = height ?? `(max(100vw, 760px) * ${a.h / a.w})`;
   return (
     <div className="pointer-events-none relative z-20 overflow-x-clip" style={{ marginTop: `calc(-1 * ${h} * ${overlapTop})`, marginBottom: `calc(-1 * ${h} * ${overlapBottom})` }}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -64,8 +76,10 @@ export function Stratum({ kind, overlapTop, overlapBottom }: { kind: keyof typeo
         width={a.w}
         height={a.h}
         loading="lazy"
-        className="pixelated relative left-1/2 block w-[max(100vw,760px)] max-w-none -translate-x-1/2"
+        className="pixelated relative left-1/2 block w-[max(100vw,760px)] max-w-none -translate-x-1/2 object-cover object-bottom"
+        style={height ? { height: `calc(${height})` } : undefined}
       />
+      {fadeFrom ? <div className="absolute inset-x-0 top-0 h-1/3" style={{ background: `linear-gradient(${fadeFrom}, transparent)` }} /> : null}
     </div>
   );
 }

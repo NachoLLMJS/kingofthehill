@@ -18,7 +18,7 @@ export function Game({ initial }: { initial: GameState }) {
       <HowTo />
       <Stratum kind="rock" overlapTop={0.24} overlapBottom={0.36} />
       <Hall state={state} />
-      <Stratum kind="magma" overlapTop={0.26} overlapBottom={0.26} />
+      <Stratum kind="magma" overlapTop={0.12} overlapBottom={0.2} height="clamp(190px, 17vw, 300px)" fadeFrom="#161a2e" />
     </>
   );
 }

@@ -30,13 +30,13 @@ A game site for a Flap token: the **last GMGN call out** on the token holds the 
 ## Design direction: "The Descent" (v4, 2026-09-27)
 The whole page is one mountain, read top to bottom. **Continuity between layers is the top priority**: no hard cuts. Every boundary is bridged by art that overlaps both neighbours.
 - **Summit** (hero, title screen): wordmark centred at the top, clock on the left, current king on the right, and the croc on the peak in the middle (`summit2-*`). Its base fills the full width, and its trail exits at the bottom centre.
-- **Slopes** (challengers): `mountain-face-*` fades in over the summit's base (the section is pulled up 72px with a masked top), so both trails connect. Challenger camps line the trail, which ends at a painted mine entrance.
-- **Stratum "ground"**: a cross-section of grass, soil and rock with a **mine shaft and ladder at the centre**, directly under the entrance.
+- **Slopes** (challengers): `mountain-face2-*` (its trail runs top to bottom at x≈50%, measured to match the summit's exit at 50.3%) fades in over the summit's base, anchored at the top so they connect at any width. At the end sits a separate `mine-entrance-*` sprite, placed on the ground stratum's grass.
+- **Stratum "ground"**: a cross-section of grass, soil and rock with no shaft or ladder (Nicol's call).
 - **Mine** (how to play): mine art header, three wooden signs on chains, and a "Mine rules" plank.
-- **Stratum "rock"**: rock with crystals; the ladder continues down into the crypt's stone arches.
+- **Stratum "rock"**: rock with crystals above the crypt's stone arches (no ladder).
 - **Crypt of kings** (hall): crypt art header; each king is a stone tomb.
-- **Stratum "magma"**: stone stairs down through lava cracks.
-- **Core** (footer): compact (brand, explore links, CA + links) on basalt above a thin lava lake with embers. No disclaimers, no altimeter, no floating torch/cart/ladder sprites (Nicol's call).
+- **Stratum "magma"**: a short lava band cropped from the top, with no stairs, faded from the crypt colour.
+- **Core** (footer): compact (brand, explore links, CA + links) on basalt, a slim bottom bar, and a lava-gradient rule. No disclaimers, no altimeter, no floating torch/cart/ladder sprites (Nicol's call).
 - Strata live in `components/Descent.tsx` (`<Stratum kind overlapTop overlapBottom>`, overlaps as fractions of the band's rendered height, min width 760px on mobile).
 Avoid hard section cuts, dark "crypto dashboard" styling, rounded corners, soft shadows, and smooth easing (use `steps()`).
 - Engine: `components/ScrollEngine.tsx` (a single rAF loop). It handles `data-parallax`, `data-reveal` (→ `.is-in`) and `data-zone` (→ `--hud` nav colour). Sprites are pixel-map SVGs in `components/sprites.tsx` and `pixel.tsx`.

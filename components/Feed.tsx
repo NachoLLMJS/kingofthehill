@@ -20,7 +20,7 @@ export function Feed({ state, now }: { state: GameState; now: number }) {
     <section id="challengers" aria-labelledby="feed-title" className="relative z-[6] -mt-[72px] scroll-mt-16 overflow-hidden" {...zoneAttrs("challengers")}>
       {/* One painted mountainside: the trail winds down to the mine entrance at the bottom. */}
       <div
-        className="absolute inset-0 bg-[#5f5e5d] bg-[image:image-set(url(/assets/mountain-face-800.webp)_1x,url(/assets/mountain-face-1360.webp)_2x)] bg-cover bg-[position:50%_100%] [image-rendering:pixelated] [mask-image:linear-gradient(to_bottom,transparent_0,black_72px)] lg:bg-[image:url(/assets/mountain-face-1360.webp)]"
+        className="absolute inset-0 bg-[#6a9a3a] bg-[image:image-set(url(/assets/mountain-face2-800.webp)_1x,url(/assets/mountain-face2-1440.webp)_2x)] bg-cover bg-[position:50%_0] [image-rendering:pixelated] [mask-image:linear-gradient(to_bottom,transparent_0,black_56px)] lg:bg-[image:url(/assets/mountain-face2-1440.webp)]"
         aria-hidden
       />
       <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgb(15_29_58/.05),rgb(15_29_58/.25)_40%,rgb(15_29_58/.25)_75%,transparent_92%)]" aria-hidden />
@@ -50,7 +50,6 @@ export function Feed({ state, now }: { state: GameState; now: number }) {
             </div>
           ) : (
             <ol className="relative" aria-label="Recent call outs, newest first">
-              <span className="trail-rope absolute top-0 bottom-0 left-[22px] w-1.5 opacity-80 lg:left-1/2 lg:-translate-x-1/2" aria-hidden />
               {items.map((c, i) => (
                 <Camp key={c.id} c={c} i={i} now={now} isKing={state.status === "live" && state.king?.id === c.id} />
               ))}
@@ -67,11 +66,23 @@ export function Feed({ state, now }: { state: GameState; now: number }) {
         </div>
       </div>
 
-      {/* The trail ends at the mine: leave room so the painted entrance shows. */}
-      <div className="relative flex h-[340px] items-start justify-center pt-6 sm:h-[400px] lg:h-[460px]">
-        <a href="#mine" className="px-box bg-[#5b3a22] px-4 py-2 font-display text-sm font-bold tracking-[0.18em] text-gold uppercase hover:bg-[#7a5030]">
+      {/* The trail ends at the mine entrance, which sits on the grass of the ground cross-section below. */}
+      <div className="relative flex h-[380px] flex-col items-center sm:h-[440px] lg:h-[520px]">
+        <a href="#mine" className="px-box relative z-10 mt-4 bg-[#5b3a22] px-4 py-2 font-display text-sm font-bold tracking-[0.18em] text-gold uppercase hover:bg-[#7a5030]">
           Enter the mine <span aria-hidden>▼</span>
         </a>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/assets/mine-entrance-900.webp"
+          srcSet="/assets/mine-entrance-480.webp 480w, /assets/mine-entrance-900.webp 900w"
+          sizes="clamp(300px, 34vw, 560px)"
+          alt="A mine entrance in a mossy rock outcrop, with a lantern and rails leading in"
+          width={900}
+          height={612}
+          loading="lazy"
+          className="pixelated absolute left-1/2 w-[clamp(300px,34vw,560px)] -translate-x-1/2"
+          style={{ bottom: "calc(max(100vw, 760px) * 0.03)" }}
+        />
       </div>
     </section>
   );

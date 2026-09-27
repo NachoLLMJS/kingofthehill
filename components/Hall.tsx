@@ -113,7 +113,7 @@ export function Hall({ state }: { state: GameState }) {
         ) : null}
       </div>
 
-      <div className="h-24" />
+      <div className="h-6" />
     </section>
   );
 }

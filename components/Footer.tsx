@@ -3,25 +3,18 @@ import { shortAddr } from "@/lib/format";
 import { CopyButton } from "./CopyButton";
 import { zoneAttrs } from "./Descent";
 
-const EMBERS = Array.from({ length: 14 }, (_, i) => ({
-  left: (i * 37 + 5) % 100,
-  delay: -((i * 1.7) % 7),
-  dur: 4 + ((i * 13) % 5),
-  dx: ((i % 5) - 2) * 10,
-}));
-
 const LINKS = [
   { href: "#challengers", label: "Challengers" },
   { href: "#mine", label: "How to play" },
   { href: "#hall", label: "Hall of kings" },
 ];
 
-// The core: the bottom of the mountain. A compact footer on basalt, with the
-// lava lake glowing underneath.
+// The core: the bottom of the mountain. A compact footer on basalt, right
+// under the lava band.
 export function Footer() {
   return (
     <footer id="core" className="relative overflow-hidden bg-[#1d1c21] text-cloud" {...zoneAttrs("core")}>
-      <div className="relative mx-auto grid max-w-[1240px] gap-10 px-4 pt-[max(9vw,72px)] pb-10 sm:px-6 md:grid-cols-[1.2fr_1fr_1.2fr] md:items-start">
+      <div className="relative mx-auto grid max-w-[1240px] gap-10 px-4 pt-[max(5vw,56px)] pb-8 sm:px-6 md:grid-cols-[1.2fr_1fr_1.2fr] md:items-start">
         <div>
           <a href="#top" className="inline-flex items-center gap-3" aria-label="Back to the summit">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -79,23 +72,12 @@ export function Footer() {
         </div>
       </div>
 
-      {/* The lava lake at the very bottom of the mountain */}
-      <div className="relative h-[140px] overflow-hidden sm:h-[180px]" aria-hidden>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/assets/core-1920.webp"
-          srcSet="/assets/core-960.webp 960w, /assets/core-1920.webp 1920w"
-          sizes="100vw"
-          alt=""
-          width={1920}
-          height={823}
-          loading="lazy"
-          className="lava-shimmer pixelated absolute inset-x-0 bottom-0 h-[300%] w-full object-cover object-bottom"
-        />
-        <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-[#1d1c21] to-transparent" />
-        {EMBERS.map((e, i) => (
-          <span key={i} className="ember" style={{ left: `${e.left}%`, animationDelay: `${e.delay}s`, animationDuration: `${e.dur}s`, ["--dx" as string]: `${e.dx}px` }} />
-        ))}
+      <div className="relative border-t-4 border-[#2e2c33]">
+        <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-3 px-4 py-4 font-display text-xs font-bold tracking-wider text-cloud/55 uppercase sm:px-6">
+          <span>© {new Date().getFullYear()} King of the Hill</span>
+          <span>Powered by GMGN call outs</span>
+        </div>
+        <div className="h-1 bg-gradient-to-r from-[#e8601c] via-[#fbd322] to-[#e8601c]" aria-hidden />
       </div>
     </footer>
   );

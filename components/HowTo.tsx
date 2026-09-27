@@ -54,7 +54,7 @@ export function HowTo() {
         </div>
       </div>
 
-      <div className="relative mx-auto max-w-[1240px] px-4 pb-24 sm:px-6">
+      <div className="relative mx-auto max-w-[1240px] px-4 pb-[calc(max(100vw,760px)*0.08+64px)] sm:px-6">
         <ol className="grid gap-x-8 gap-y-14 md:grid-cols-3">
           {STEPS.map((s, i) => (
             <li key={s.n} data-reveal style={{ ["--i" as string]: i }} className="relative pt-10">
