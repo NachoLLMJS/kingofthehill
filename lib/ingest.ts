@@ -43,6 +43,7 @@ export function parseMessages(input: unknown, now = Date.now()): { callouts: Cal
       wallet_address: raw.wallet_address,
       content: clip(raw.content, 1000),
       display_content: clip(raw.display_content, 1000),
+      display_content_zh: clip(raw.display_content_zh, 1000),
       created_at: raw.created_at,
       follower_count: Number.isFinite(Number(raw.follower_count)) ? Math.max(0, Number(raw.follower_count)) : 0,
       is_kol: raw.is_kol === true,

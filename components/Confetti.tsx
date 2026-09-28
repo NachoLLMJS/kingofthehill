@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useI18n } from "@/lib/i18n";
 import { PixelCrown } from "./pixel";
 
 const COLORS = ["#fbd322", "#e0a412", "#c23729", "#94df50", "#c5f14e", "#58b2fa", "#f4f9ff", "#f8ce5e"];
@@ -9,6 +10,7 @@ const DURATION = 5000;
 // Square pixel confetti on a full-screen canvas. `burst` changes → new burst.
 export function Confetti({ burst, name }: { burst: number; name?: string }) {
   const ref = useRef<HTMLCanvasElement>(null);
+  const { t } = useI18n();
   const [banner, setBanner] = useState(0);
 
   useEffect(() => {
@@ -82,7 +84,7 @@ export function Confetti({ burst, name }: { burst: number; name?: string }) {
         <div key={banner} className="pointer-events-none fixed inset-x-0 top-[22%] z-50 flex justify-center px-4" aria-hidden>
           <div className="stamp px-box bg-gold px-6 py-4 text-center sm:px-10">
             <PixelCrown className="mx-auto -mt-12 w-20 -rotate-[6deg]" />
-            <p className="mt-2 font-display text-3xl font-bold tracking-wide uppercase sm:text-5xl">New king crowned!</p>
+            <p className="mt-2 font-display text-3xl font-bold tracking-wide uppercase sm:text-5xl">{t("new_king")}</p>
             {name ? <p className="mt-2 font-display text-lg font-bold [overflow-wrap:anywhere] sm:text-xl">{name}</p> : null}
           </div>
         </div>

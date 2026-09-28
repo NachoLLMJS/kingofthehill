@@ -21,6 +21,14 @@ export type Store = {
 
 const KEY = `koth:callouts:${CHAIN}:${TOKEN_ADDRESS}`;
 
+// Merge a re-sent call out into what we have: keep any translation we already
+// stored if the new copy lacks it (older bridges don't send every language).
+function merge(prev: Callout | undefined, next: Callout): Callout {
+  if (!prev) return next;
+  return { ...prev, ...next, textEn: next.textEn || prev.textEn, textZh: next.textZh || prev.textZh };
+}
+const same = (a: Callout, b: Callout) => a.textEn === b.textEn && a.textZh === b.textZh;
+
 export function getStore(): Store {
   const url = process.env.UPSTASH_REDIS_REST_URL ?? process.env.KV_REST_API_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN ?? process.env.KV_REST_API_TOKEN;
@@ -50,8 +58,11 @@ function redisStore(url: string, token: string): Store {
     },
     async add(callouts) {
       if (!callouts.length) return 0;
-      const args = callouts.flatMap((c) => [c.id, JSON.stringify(c)]);
-      return Number(await call(["HSET", KEY, ...args]));
+      const prev = ((await call(["HMGET", KEY, ...callouts.map((c) => c.id)])) as (string | null)[]).map((v) => (v ? (JSON.parse(v) as Callout) : undefined));
+      const writes = callouts.map((c, i) => [prev[i], merge(prev[i], c)] as const).filter(([p, m]) => !p || !same(p, m));
+      if (!writes.length) return 0;
+      await call(["HSET", KEY, ...writes.flatMap(([, m]) => [m.id, JSON.stringify(m)])]);
+      return writes.filter(([p]) => !p).length;
     },
     async getMeta(name) {
       return ((await call(["GET", `${KEY}:meta:${name}`])) as string | null) ?? null;
@@ -91,12 +102,16 @@ function fileStore(): Store {
     async add(callouts) {
       const map = await load();
       let added = 0;
+      let changed = false;
       for (const c of callouts) {
-        if (map.has(c.id)) continue;
-        map.set(c.id, c);
-        added++;
+        const prev = map.get(c.id);
+        const next = merge(prev, c);
+        if (prev && same(prev, next)) continue;
+        if (!prev) added++;
+        map.set(c.id, next);
+        changed = true;
       }
-      if (added) {
+      if (changed) {
         await mkdir(path.dirname(file), { recursive: true });
         const tmp = `${file}.tmp`;
         await writeFile(tmp, JSON.stringify([...map.values()]));

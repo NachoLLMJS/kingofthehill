@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         King of the Hill — GMGN call out bridge
 // @namespace    koth
-// @version      1.1.0
+// @version      1.2.0
 // @description  Reads the token's call outs from gmgn.ai every few seconds and sends them to the King of the Hill site.
 // @match        https://gmgn.ai/*
 // @grant        GM_xmlhttpRequest
@@ -24,7 +24,7 @@
   // token only needs the site's env vars. Re-read every minute.
   let game = null;
   let gameAt = 0;
-  const feedUrl = () => `/api/v1/token/${game.chain}/${game.token}/community/messages?from_app=gmgn&os=web&app_lang=en&limit=50`;
+  const feedUrl = (lang) => `/api/v1/token/${game.chain}/${game.token}/community/messages?from_app=gmgn&os=web&app_lang=${lang}&limit=50`;
 
   // Runs in a single gmgn.ai tab: extra tabs step aside.
   const LOCK = "koth-bridge-lock";
@@ -103,11 +103,17 @@
         game = await getConfig();
         gameAt = Date.now();
       }
-      const res = await fetch(feedUrl(), { credentials: "include" });
-      if (!res.ok) throw new Error(`gmgn ${res.status}`);
-      const json = await res.json();
-      const messages = json?.data?.messages;
-      if (!Array.isArray(messages)) throw new Error("gmgn: unexpected response");
+      // Same feed twice: GMGN translates display_content into app_lang.
+      const read = async (lang) => {
+        const res = await fetch(feedUrl(lang), { credentials: "include" });
+        if (!res.ok) throw new Error(`gmgn ${res.status}`);
+        const list = (await res.json())?.data?.messages;
+        if (!Array.isArray(list)) throw new Error("gmgn: unexpected response");
+        return list;
+      };
+      const [messages, zh] = await Promise.all([read("en"), read("zh-CN").catch(() => [])]);
+      const zhById = new Map(zh.map((m) => [m.ulid, m.display_content]));
+      for (const m of messages) m.display_content_zh = zhById.get(m.ulid) || undefined;
       const out = await post({ chain: game.chain, token: game.token, messages });
       total += out.added;
       failures = 0;

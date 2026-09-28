@@ -4,7 +4,9 @@ export type Callout = {
   name: string;
   avatar: string | null;
   wallet: string;
-  text: string;
+  text: string; // original language
+  textEn?: string; // GMGN translation (app_lang=en)
+  textZh?: string; // GMGN translation (app_lang=zh-CN)
   at: number; // unix ms
   followers: number;
   kol: boolean;

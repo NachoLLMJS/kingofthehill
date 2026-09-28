@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ago, duration, shortAddr } from "@/lib/format";
+import { calloutText, useI18n } from "@/lib/i18n";
 import type { FeedItem, GameState } from "@/lib/types";
 import { zoneAttrs } from "./Descent";
 import { PixelAvatar, PixelCrown } from "./pixel";
@@ -12,6 +13,7 @@ const PAGE = 10;
 // The slopes: challengers are camps along a switchback trail down the
 // mountain. Newest call out sits closest to the summit.
 export function Feed({ state, now }: { state: GameState; now: number }) {
+  const { t } = useI18n();
   const [shown, setShown] = useState(PAGE);
   const items = state.recent.slice(0, shown);
   const { stats } = state;
@@ -27,26 +29,26 @@ export function Feed({ state, now }: { state: GameState; now: number }) {
 
       <div className="relative mx-auto max-w-[1100px] px-4 pt-32 sm:px-6">
         <header data-reveal className="px-box mx-auto max-w-[620px] bg-parchment p-6 text-center text-ink sm:p-8">
-          <p className="font-display text-sm font-bold tracking-[0.2em] text-grass-dk uppercase">2,000m · the slopes</p>
+          <p className="font-display text-sm font-bold tracking-[0.2em] text-grass-dk uppercase">{t("slopes_kicker")}</p>
           <h2 id="feed-title" className="mt-2 font-display text-4xl leading-none font-bold sm:text-5xl">
-            The challengers are climbing.
+            {t("slopes_title")}
           </h2>
           <p className="mx-auto mt-4 max-w-[46ch] text-[15px] leading-relaxed text-ink-soft">
-            Every call out on GMGN is a challenger heading for the summit, newest first. Each one knocks the king off and resets the clock.
+            {t("slopes_body")}
           </p>
           <dl className="mt-6 grid grid-cols-2 gap-3 text-left sm:grid-cols-4">
-            <Stat label="Call outs" value={String(stats.callouts)} />
-            <Stat label="Challengers" value={String(stats.challengers)} />
-            <Stat label="Kings" value={String(stats.rounds)} />
-            <Stat label="Longest round" value={duration(stats.longestRoundMs).split(" ")[0]} />
+            <Stat label={t("stat_callouts")} value={String(stats.callouts)} />
+            <Stat label={t("stat_challengers")} value={String(stats.challengers)} />
+            <Stat label={t("stat_kings")} value={String(stats.rounds)} />
+            <Stat label={t("stat_longest")} value={duration(stats.longestRoundMs).split(" ")[0]} />
           </dl>
         </header>
 
         <div className="relative mt-16">
           {items.length === 0 ? (
             <div className="px-box mx-auto max-w-[520px] bg-parchment p-8 text-center text-ink">
-              <p className="font-display text-xl font-bold uppercase">No challengers yet</p>
-              <p className="mt-2 text-[15px]">The first call out on GMGN will set up camp on the trail.</p>
+              <p className="font-display text-xl font-bold uppercase">{t("no_challengers")}</p>
+              <p className="mt-2 text-[15px]">{t("no_challengers_body")}</p>
             </div>
           ) : (
             <ol className="relative" aria-label="Recent call outs, newest first">
@@ -59,7 +61,7 @@ export function Feed({ state, now }: { state: GameState; now: number }) {
           {state.recent.length > shown ? (
             <div className="relative mt-12 flex justify-center">
               <button type="button" className="btn-px btn-px--grass btn-px--sm" onClick={() => setShown((n) => n + PAGE)}>
-                Further down the trail
+                {t("more_trail")}
               </button>
             </div>
           ) : null}
@@ -69,7 +71,7 @@ export function Feed({ state, now }: { state: GameState; now: number }) {
       {/* The trail ends at the mine entrance, which sits on the grass of the ground cross-section below. */}
       <div className="relative flex h-[380px] flex-col items-center sm:h-[440px] lg:h-[520px]">
         <a href="#mine" className="px-box relative z-10 mt-4 bg-[#5b3a22] px-4 py-2 font-display text-sm font-bold tracking-[0.18em] text-gold uppercase hover:bg-[#7a5030]">
-          Enter the mine <span aria-hidden>▼</span>
+          {t("enter_mine")} <span aria-hidden>▼</span>
         </a>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
@@ -89,6 +91,7 @@ export function Feed({ state, now }: { state: GameState; now: number }) {
 }
 
 function Camp({ c, i, now, isKing }: { c: FeedItem; i: number; now: number; isKing: boolean }) {
+  const { t, lang } = useI18n();
   const right = i % 2 === 1;
   return (
     <li
@@ -114,9 +117,9 @@ function Camp({ c, i, now, isKing }: { c: FeedItem; i: number; now: number; isKi
             {c.kol ? <span className="bg-ruby px-1 font-display text-[10px] font-bold text-white uppercase">KOL</span> : null}
           </p>
           {c.handle ? <p className="truncate text-xs text-ink-soft">@{c.handle}</p> : null}
-          <p className="mt-1.5 line-clamp-2 text-[15px] leading-snug [overflow-wrap:anywhere]">{c.text || "(no text)"}</p>
+          <p className="mt-1.5 line-clamp-2 text-[15px] leading-snug [overflow-wrap:anywhere]">{calloutText(c, lang) || t("no_text")}</p>
           <p className="mt-1.5 text-xs text-ink-soft">
-            {shortAddr(c.wallet)} · {ago(now - c.at)}
+            {shortAddr(c.wallet)} · {ago(now - c.at, t)}
           </p>
         </div>
         <div className="col-span-2">
@@ -128,13 +131,14 @@ function Camp({ c, i, now, isKing }: { c: FeedItem; i: number; now: number; isKi
 }
 
 function ReignTag({ c, isKing, now }: { c: FeedItem; isKing: boolean; now: number }) {
+  const { t } = useI18n();
   if (c.round === null)
-    return <span className="inline-block border-2 border-dashed border-ink/30 px-2 py-0.5 font-display text-xs font-bold tracking-wider text-ink-soft/80 uppercase">During break · didn’t count</span>;
-  if (isKing) return <span className="inline-block bg-ink px-2 py-1 font-display text-xs font-bold tracking-wider text-gold uppercase">On the hill · {duration(now - c.at)}</span>;
-  if (c.crowned) return <span className="inline-block bg-ruby px-2 py-1 font-display text-xs font-bold tracking-wider text-white uppercase">Crowned · round {c.round}</span>;
+    return <span className="inline-block border-2 border-dashed border-ink/30 px-2 py-0.5 font-display text-xs font-bold tracking-wider text-ink-soft/80 uppercase">{t("tag_break")}</span>;
+  if (isKing) return <span className="inline-block bg-ink px-2 py-1 font-display text-xs font-bold tracking-wider text-gold uppercase">{t("tag_on_hill", { t: duration(now - c.at) })}</span>;
+  if (c.crowned) return <span className="inline-block bg-ruby px-2 py-1 font-display text-xs font-bold tracking-wider text-white uppercase">{t("tag_crowned", { n: c.round })}</span>;
   return (
     <span className="inline-block border-2 border-ink/30 px-2 py-0.5 font-display text-xs font-bold tracking-wider text-ink-soft uppercase">
-      Held {duration(c.reignMs ?? 0)} · round {c.round}
+      {t("tag_held", { t: duration(c.reignMs ?? 0), n: c.round ?? "" })}
     </span>
   );
 }

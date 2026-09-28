@@ -21,10 +21,12 @@ export function duration(ms: number) {
   return `${Math.floor(h / 24)}d ${h % 24}h`;
 }
 
-export function ago(ms: number) {
+type T = (k: "just_now" | "ago", vars?: Record<string, string | number>) => string;
+export function ago(ms: number, t?: T) {
   const s = Math.max(0, Math.floor(ms / 1000));
-  if (s < 5) return "just now";
-  return `${duration(ms).split(" ")[0]} ago`;
+  const short = duration(ms).split(" ")[0];
+  if (!t) return s < 5 ? "just now" : `${short} ago`;
+  return s < 5 ? t("just_now") : t("ago", { t: short });
 }
 
 export function compact(n: number) {

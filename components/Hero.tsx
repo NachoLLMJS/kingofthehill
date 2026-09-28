@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { BSCSCAN_ADDRESS_URL, FLAP_TOKEN_URL, GMGN_TOKEN_URL } from "@/lib/config";
 import { ago, clock, compact, shortAddr } from "@/lib/format";
 import { phaseAt } from "@/lib/game";
+import { calloutText, useI18n } from "@/lib/i18n";
 import type { Callout, GameState } from "@/lib/types";
 import type { Connection } from "./useGame";
 import { Confetti } from "./Confetti";
@@ -15,6 +16,7 @@ import { Bird } from "./sprites";
 const SEGMENTS = 20;
 
 export function Hero({ state, now, connection }: { state: GameState; now: number; connection: Connection }) {
+  const { t } = useI18n();
   const phase = phaseAt(state, now);
   const { status, king, winner } = phase;
   const roundMs = state.roundSeconds * 1000;
@@ -50,7 +52,7 @@ export function Hero({ state, now, connection }: { state: GameState; now: number
     if (justCrowned) setBurst((n) => n + 1);
   }, [status, phase.breakRemaining]);
 
-  const label = live ? "Time left on the hill" : crowned ? "King crowned · next round in" : open ? "The hill is open" : "Waiting for the first call out";
+  const label = live ? t("t_live") : crowned ? t("t_crowned") : open ? t("t_open") : t("t_empty");
 
   const card =
     live && king ? (
@@ -107,7 +109,7 @@ export function Hero({ state, now, connection }: { state: GameState; now: number
             <div className="flex flex-wrap items-center justify-center gap-2 lg:justify-start">
               <SourceBadge state={state} connection={connection} />
               {state.round > 0 ? (
-                <span className="px-outline-sm font-display text-sm font-bold tracking-[0.12em] uppercase">Round {open ? state.round + 1 : state.round}</span>
+                <span className="px-outline-sm font-display text-sm font-bold tracking-[0.12em] uppercase">{t("round", { n: open ? state.round + 1 : state.round })}</span>
               ) : null}
             </div>
             <div
@@ -171,27 +173,29 @@ export function Hero({ state, now, connection }: { state: GameState; now: number
 }
 
 function Ctas({ open }: { open: boolean }) {
+  const { t } = useI18n();
   return (
     <>
       <a className="btn-px" href={GMGN_TOKEN_URL} target="_blank" rel="noopener noreferrer">
-        {open ? "Take the hill on GMGN" : "Call out on GMGN"} <span aria-hidden>↗</span>
+        {open ? t("cta_take") : t("cta_callout")} <span aria-hidden>↗</span>
       </a>
       <a className="btn-px btn-px--ghost" href={FLAP_TOKEN_URL} target="_blank" rel="noopener noreferrer">
-        Buy on Flap <span aria-hidden>↗</span>
+        {t("cta_buy")} <span aria-hidden>↗</span>
       </a>
     </>
   );
 }
 
 function KingCard({ king, now, entrance, crowned, round }: { king: Callout; now: number; entrance: number; crowned: boolean; round?: number }) {
+  const { t, lang } = useI18n();
   return (
     <article
       key={`k-${king.id}-${entrance}-${crowned}`}
-      aria-label={crowned ? "Crowned king" : "Current king"}
+      aria-label={crowned ? t("crowned_king") : t("current_king")}
       className={`px-box relative max-w-[620px] p-5 sm:p-6 ${crowned ? "bg-gold" : "bg-parchment"} ${entrance ? "king-enter" : ""}`}
     >
       <div className="absolute -top-5 left-5 bg-ink px-3 py-1 font-display text-xs font-bold tracking-[0.2em] text-gold uppercase">
-        {crowned ? `Crowned king${round ? ` · round ${round}` : ""}` : "Current king"}
+        {crowned ? (round ? t("crowned_king_round", { n: round }) : t("crowned_king")) : t("current_king")}
       </div>
 
       <div className="flex items-start gap-4">
@@ -213,7 +217,7 @@ function KingCard({ king, now, entrance, crowned, round }: { king: Callout; now:
                 @{king.handle}
               </a>
             ) : null}
-            {king.followers > 0 ? <span> · {compact(king.followers)} followers</span> : null}
+            {king.followers > 0 ? <span> · {t("followers", { n: compact(king.followers) })}</span> : null}
           </p>
           <div className="mt-2 inline-flex flex-wrap items-center bg-ink/8 text-sm">
             <a className="px-2 py-1 font-display font-bold hover:text-ruby" href={BSCSCAN_ADDRESS_URL(king.wallet)} target="_blank" rel="noopener noreferrer" title={king.wallet}>
@@ -225,29 +229,30 @@ function KingCard({ king, now, entrance, crowned, round }: { king: Callout; now:
       </div>
 
       <blockquote className="relative mt-5 border-l-4 border-ink pl-4 text-lg leading-snug [overflow-wrap:anywhere]">
-        <p className="line-clamp-3">“{king.text || "(no text)"}”</p>
+        <p className="line-clamp-3">“{calloutText(king, lang) || t("no_text")}”</p>
       </blockquote>
 
       <p className="mt-4 flex flex-wrap gap-x-4 gap-y-1 font-display text-sm font-bold tracking-wide uppercase">
-        <span>Called {ago(now - king.at)}</span>
-        {crowned ? <span className="text-ruby">King of the hill!</span> : <span className="text-grass-ink">Holding the hill</span>}
+        <span>{t("called_ago", { t: ago(now - king.at, t) })}</span>
+        {crowned ? <span className="text-ruby">{t("king_of_hill")}</span> : <span className="text-grass-ink">{t("holding")}</span>}
       </p>
     </article>
   );
 }
 
 function OpenCard({ state, open }: { state: GameState; open: boolean }) {
+  const { t } = useI18n();
   const last = state.lastWinner;
   return (
     <div className="px-box relative max-w-[620px] bg-parchment p-6">
       <div className="absolute -top-5 left-5 bg-ink px-3 py-1 font-display text-xs font-bold tracking-[0.2em] text-gold uppercase">
-        {open ? `Round ${state.round + 1}` : "The throne"}
+        {open ? t("round", { n: state.round + 1 }) : t("the_throne")}
       </div>
-      <p className="mt-1 font-display text-2xl font-bold">The hill is empty.</p>
+      <p className="mt-1 font-display text-2xl font-bold">{t("hill_empty")}</p>
       <p className="mt-2 text-[15px] leading-relaxed">
         {state.status === "error"
-          ? "We can’t reach GMGN right now. The throne will show up as soon as the feed is back."
-          : "The first call out on GMGN takes the hill and starts the clock."}
+          ? t("hill_error")
+          : t("hill_empty_body")}
       </p>
       {last ? (
         <div className="mt-5 flex items-center gap-3 border-t-4 border-dotted border-ink/20 pt-4">
@@ -256,7 +261,7 @@ function OpenCard({ state, open }: { state: GameState; open: boolean }) {
             <PixelAvatar src={last.callout.avatar} seed={last.callout.wallet} size={36} grain={4} />
           </div>
           <p className="min-w-0 text-sm">
-            <span className="font-display font-bold uppercase">Last king:</span> <span className="[overflow-wrap:anywhere]">{last.callout.name}</span>
+            <span className="font-display font-bold uppercase">{t("last_king")}</span> <span className="[overflow-wrap:anywhere]">{last.callout.name}</span>
           </p>
         </div>
       ) : null}
@@ -265,17 +270,18 @@ function OpenCard({ state, open }: { state: GameState; open: boolean }) {
 }
 
 function SourceBadge({ state, connection }: { state: GameState; connection: Connection }) {
+  const { t } = useI18n();
   if (connection === "reconnecting" || state.stale)
-    return <span className="px-box bg-gold px-2 py-0.5 font-display text-xs font-bold tracking-widest uppercase">Reconnecting…</span>;
+    return <span className="px-box bg-gold px-2 py-0.5 font-display text-xs font-bold tracking-widest uppercase">{t("reconnecting")}</span>;
   if (state.source === "snapshot")
     return (
       <span className="px-box bg-cloud px-2 py-0.5 font-display text-xs font-bold tracking-widest uppercase" title="No GMGN API key configured: replaying a real snapshot of the test token">
-        Demo replay
+        {t("demo")}
       </span>
     );
   return (
     <span className="px-box inline-flex items-center gap-1.5 bg-ruby px-2 py-0.5 font-display text-xs font-bold tracking-widest text-white uppercase">
-      <span className="blink inline-block h-2 w-2 bg-white" aria-hidden /> Live
+      <span className="blink inline-block h-2 w-2 bg-white" aria-hidden /> {t("live")}
     </span>
   );
 }

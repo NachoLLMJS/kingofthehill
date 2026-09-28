@@ -21,6 +21,8 @@ export type RawMessage = {
   wallet_address?: string;
   content?: string;
   display_content?: string;
+  // Added by the bridge: the same message fetched with app_lang=zh-CN.
+  display_content_zh?: string;
   created_at?: string;
   follower_count?: number;
   is_kol?: boolean;
@@ -85,6 +87,8 @@ export function toCallout(m: RawMessage): Callout {
     avatar: m.profile_image_url || null,
     wallet: (m.wallet_address ?? "").toLowerCase(),
     text: (m.content || m.display_content || "").trim(),
+    textEn: m.display_content?.trim() || undefined,
+    textZh: m.display_content_zh?.trim() || undefined,
     at: Date.parse(m.created_at ?? "") || 0,
     followers: m.follower_count ?? 0,
     kol: Boolean(m.is_kol),

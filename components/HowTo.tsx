@@ -1,30 +1,18 @@
+"use client";
+
 import { FLAP_TOKEN_URL, GMGN_TOKEN_URL, ROUND_SECONDS, TOKEN_TICKER } from "@/lib/config";
 import { clock } from "@/lib/format";
+import { useI18n } from "@/lib/i18n";
 import { zoneAttrs } from "./Descent";
-
-const STEPS = [
-  {
-    n: "01",
-    title: "Grab the token",
-    body: `Pick up ${TOKEN_TICKER} on Flap. Every trade pays a small fee, and those fees are the prize.`,
-    cta: { label: "Buy on Flap", href: FLAP_TOKEN_URL },
-  },
-  {
-    n: "02",
-    title: "Call it out on GMGN",
-    body: "Open the token on GMGN and post a call out. The moment it lands, your wallet is the new king and the clock resets.",
-    cta: { label: "Call out on GMGN", href: GMGN_TOKEN_URL },
-  },
-  {
-    n: "03",
-    title: "Hold the hill",
-    body: `Every new call out resets the clock to ${clock(ROUND_SECONDS * 1000)}. If it reaches 00:00 on your call, you’re crowned and the fees go to your wallet.`,
-    cta: null,
-  },
-];
 
 // Inside the mountain: the mine teaches the game.
 export function HowTo() {
+  const { t } = useI18n();
+  const STEPS = [
+    { n: "01", title: t("step1_title"), body: t("step1_body", { ticker: TOKEN_TICKER }), cta: { label: t("cta_buy"), href: FLAP_TOKEN_URL } },
+    { n: "02", title: t("step2_title"), body: t("step2_body"), cta: { label: t("cta_callout"), href: GMGN_TOKEN_URL } },
+    { n: "03", title: t("step3_title"), body: t("step3_body", { clock: clock(ROUND_SECONDS * 1000) }), cta: null },
+  ];
   return (
     <section id="mine" aria-labelledby="how-title" className="relative scroll-mt-16 bg-[#2a1a0e] text-cloud" {...zoneAttrs("mine")}>
       <div className="relative h-[440px] overflow-hidden sm:h-[520px] lg:h-[600px]">
@@ -46,9 +34,9 @@ export function HowTo() {
 
         <div className="relative mx-auto flex h-full max-w-[1240px] items-center justify-center px-4 text-center sm:px-6">
           <header data-reveal="drop">
-            <p className="font-display text-sm font-bold tracking-[0.2em] text-gold uppercase [text-shadow:2px_2px_0_#000]">Inside the mountain · the mine</p>
+            <p className="font-display text-sm font-bold tracking-[0.2em] text-gold uppercase [text-shadow:2px_2px_0_#000]">{t("mine_kicker")}</p>
             <h2 id="how-title" className="px-outline mt-3 font-display text-5xl leading-none font-bold sm:text-6xl">
-              How to take the hill
+              {t("mine_title")}
             </h2>
           </header>
         </div>
@@ -71,7 +59,7 @@ export function HowTo() {
                   </a>
                 ) : (
                   <p className="mt-6 inline-flex items-center gap-2 self-start bg-gold px-3 py-2 font-display text-sm font-bold tracking-wider text-ink uppercase">
-                    Last call out wins
+                    {t("last_wins")}
                   </p>
                 )}
               </article>
@@ -81,16 +69,11 @@ export function HowTo() {
 
         {/* House rules, nailed to a plank on the tunnel wall */}
         <div data-reveal className="wood-sign relative mt-16 grid gap-8 p-6 pt-8 text-parchment md:grid-cols-[auto_1fr_1fr] md:items-start md:gap-10 md:p-8">
-          <p className="font-display text-2xl leading-none font-bold text-gold uppercase [text-shadow:2px_2px_0_#2a1a0e]">
-            Mine
-            <br className="hidden md:block" /> rules
+          <p className="font-display text-2xl leading-none font-bold text-gold uppercase [text-shadow:2px_2px_0_#2a1a0e] md:max-w-[6ch]">
+            {t("rules_title")}
           </p>
-          <Rule title="Only the last call out counts">
-            Calling out more often doesn’t stack. What matters is being the most recent caller when the clock runs out.
-          </Rule>
-          <Rule title="1-minute break, then a new round">
-            When a king is crowned the hill rests for 1 minute. Then it opens again, and the first call out on GMGN starts a fresh round.
-          </Rule>
+          <Rule title={t("rule1_title")}>{t("rule1_body")}</Rule>
+          <Rule title={t("rule2_title")}>{t("rule2_body")}</Rule>
         </div>
       </div>
     </section>

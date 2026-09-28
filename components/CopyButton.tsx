@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useI18n } from "@/lib/i18n";
 
 export function CopyButton({ value, label, className = "" }: { value: string; label: string; className?: string }) {
+  const { t } = useI18n();
   const [state, setState] = useState<"idle" | "copied" | "error">("idle");
   const copy = async () => {
     try {
@@ -21,7 +23,7 @@ export function CopyButton({ value, label, className = "" }: { value: string; la
       aria-label={`Copy ${label}`}
     >
       <span aria-hidden>{state === "copied" ? "✓" : state === "error" ? "!" : "⧉"}</span>
-      <span aria-live="polite">{state === "copied" ? "Copied" : state === "error" ? "Failed" : "Copy"}</span>
+      <span aria-live="polite">{state === "copied" ? t("copied") : state === "error" ? t("copy_failed") : t("copy")}</span>
     </button>
   );
 }

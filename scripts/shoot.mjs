@@ -53,6 +53,10 @@ const evaluate = async (expr) => (await send("Runtime.evaluate", { expression: e
 await send("Page.enable");
 await send("Emulation.setDeviceMetricsOverride", { width: +W, height: +H, deviceScaleFactor: 1, mobile: +W < 600 });
 await send("Page.navigate", { url: URL });
+await sleep(1500);
+if (process.env.LANG_ZH) {
+  await evaluate("localStorage.setItem('koth-lang','zh'); location.reload()");
+}
 await sleep(3500);
 await evaluate("document.documentElement.style.scrollBehavior='auto'");
 

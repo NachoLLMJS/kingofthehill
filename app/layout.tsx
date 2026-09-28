@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { DotGothic16, Jersey_10, Pixelify_Sans } from "next/font/google";
+import { LangProvider } from "@/lib/i18n";
 import "./globals.css";
 
 const pixelify = Pixelify_Sans({ variable: "--font-pixelify", subsets: ["latin"], weight: ["500", "700"] });
@@ -19,7 +20,9 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${pixelify.variable} ${jersey.variable} ${dotgothic.variable}`}>
-      <body className="min-h-dvh">{children}</body>
+      <body className="min-h-dvh">
+        <LangProvider>{children}</LangProvider>
+      </body>
     </html>
   );
 }

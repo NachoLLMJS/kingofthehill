@@ -1,50 +1,55 @@
+"use client";
+
 import { BSCSCAN_ADDRESS_URL, FLAP_TOKEN_URL, GMGN_TOKEN_URL, TOKEN_ADDRESS } from "@/lib/config";
 import { shortAddr } from "@/lib/format";
+import { LangSwitch, useI18n, type Key } from "@/lib/i18n";
 import { CopyButton } from "./CopyButton";
 import { zoneAttrs } from "./Descent";
 
 const LINKS = [
-  { href: "#challengers", label: "Challengers" },
-  { href: "#mine", label: "How to play" },
-  { href: "#hall", label: "Hall of kings" },
-];
+  { href: "#challengers", label: "nav_challengers" },
+  { href: "#mine", label: "nav_how" },
+  { href: "#hall", label: "nav_hall" },
+] satisfies { href: string; label: Key }[];
 
 // The core: the bottom of the mountain. A compact footer on basalt, right
 // under the lava band.
 export function Footer() {
+  const { t } = useI18n();
   return (
     <footer id="core" className="relative overflow-hidden bg-[#1d1c21] text-cloud" {...zoneAttrs("core")}>
       <div className="relative mx-auto grid max-w-[1240px] gap-10 px-4 pt-[max(5vw,56px)] pb-8 sm:px-6 md:grid-cols-[1.2fr_1fr_1.2fr] md:items-start">
         <div>
-          <a href="#top" className="inline-flex items-center gap-3" aria-label="Back to the summit">
+          <a href="#top" className="inline-flex items-center gap-3" aria-label={t("back_summit")}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/assets/logo-emblem-128.webp" alt="" width={48} height={48} loading="lazy" className="pixelated h-12 w-12" />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/assets/logo-wordmark-600.webp" alt="King of the Hill" width={600} height={227} loading="lazy" className="pixelated h-11 w-auto" />
           </a>
-          <p className="mt-4 max-w-[34ch] text-sm leading-relaxed text-cloud/75">The last call out on GMGN takes the crown. Hold the hill for 5 minutes and the fees are yours.</p>
+          <p className="mt-4 max-w-[34ch] text-sm leading-relaxed text-cloud/75">{t("footer_tagline")}</p>
+          <LangSwitch className="mt-5" />
         </div>
 
         <nav aria-label="Footer">
-          <p className="font-display text-xs font-bold tracking-[0.2em] text-[#ff9a3c] uppercase">Explore</p>
+          <p className="font-display text-xs font-bold tracking-[0.2em] text-[#ff9a3c] uppercase">{t("explore")}</p>
           <ul className="mt-3 grid gap-2 font-display text-sm font-bold tracking-wide uppercase">
             {LINKS.map((l) => (
               <li key={l.href}>
                 <a className="hover:text-gold" href={l.href}>
-                  {l.label}
+                  {t(l.label)}
                 </a>
               </li>
             ))}
             <li>
               <a className="text-gold hover:text-cloud" href="#top">
-                ▲ Back to the summit
+                ▲ {t("back_summit")}
               </a>
             </li>
           </ul>
         </nav>
 
         <div>
-          <p className="font-display text-xs font-bold tracking-[0.2em] text-[#ff9a3c] uppercase">Token</p>
+          <p className="font-display text-xs font-bold tracking-[0.2em] text-[#ff9a3c] uppercase">{t("token")}</p>
           <div className="mt-3 inline-flex max-w-full items-center bg-cloud text-ink">
             <span className="px-3 font-display text-xs font-bold tracking-wider text-ink-soft uppercase">CA</span>
             <code className="font-display text-sm font-bold" title={TOKEN_ADDRESS}>
@@ -72,13 +77,7 @@ export function Footer() {
         </div>
       </div>
 
-      <div className="relative border-t-4 border-[#2e2c33]">
-        <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-3 px-4 py-4 font-display text-xs font-bold tracking-wider text-cloud/55 uppercase sm:px-6">
-          <span>© {new Date().getFullYear()} King of the Hill</span>
-          <span>Powered by GMGN call outs</span>
-        </div>
-        <div className="h-1 bg-gradient-to-r from-[#e8601c] via-[#fbd322] to-[#e8601c]" aria-hidden />
-      </div>
+      <div className="h-1 bg-gradient-to-r from-[#e8601c] via-[#fbd322] to-[#e8601c]" aria-hidden />
     </footer>
   );
 }
