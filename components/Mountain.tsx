@@ -83,8 +83,8 @@ export function Mountain({ children }: { children: React.ReactNode }) {
       />
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src="/assets/mountain-full-1520.webp"
-        srcSet="/assets/mountain-full-1520.webp 1520w, /assets/mountain-full-2280.webp 2280w, /assets/mountain-full-3040.webp 3040w"
+        src="/assets/mountain-full-1520.webp?v=right-summit-1"
+        srcSet="/assets/mountain-full-1520.webp?v=right-summit-1 1520w, /assets/mountain-full-2280.webp?v=right-summit-1 2280w, /assets/mountain-full-3040.webp?v=right-summit-1 3040w"
         sizes={box ? `${Math.round(box.height * RATIO)}px` : "100vw"}
         alt="The crowned GMGN crocodile on the peak of a grassy pixel-art mountain; a trail winds all the way down to a mine entrance"
         width={1520}

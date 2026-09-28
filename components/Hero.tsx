@@ -128,8 +128,8 @@ export function Hero({ state, now, connection }: { state: GameState; now: number
             </div>
           </div>
 
-          {/* ── Right: the throne ── */}
-          <div className="lg:col-span-4 lg:col-start-9 lg:pt-10">
+          {/* ── Centre: the throne; the enlarged summit and crocodile stay clear on the right ── */}
+          <div className="lg:col-span-4 lg:col-start-5 lg:pt-10">
             {card}
             <div className="mt-8 flex flex-wrap justify-center gap-5 lg:hidden">
               <Ctas open={open} />
