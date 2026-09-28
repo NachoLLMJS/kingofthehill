@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         King of the Hill — GMGN call out bridge
 // @namespace    koth
-// @version      1.2.0
+// @version      1.2.1
 // @description  Reads the token's call outs from gmgn.ai every few seconds and sends them to the King of the Hill site.
 // @match        https://gmgn.ai/*
 // @grant        GM_xmlhttpRequest
@@ -19,6 +19,7 @@
   const SECRET = "PASTE_INGEST_SECRET_HERE"; // same value as INGEST_SECRET on the site
   // ──────────────────────────────────────────────────────────────────────────
 
+  const BASE = SITE.replace(/\/+$/, ""); // tolerate a trailing slash
   const EVERY_MS = 5000;
   // Chain and token come from the site (/api/config), so launching a new
   // token only needs the site's env vars. Re-read every minute.
@@ -55,7 +56,7 @@
     new Promise((resolve, reject) => {
       GM_xmlhttpRequest({
         method: "GET",
-        url: `${SITE}/api/config`,
+        url: `${BASE}/api/config`,
         timeout: 10000,
         onload: (r) => (r.status === 200 ? resolve(JSON.parse(r.responseText)) : reject(new Error(`config ${r.status}`))),
         onerror: () => reject(new Error("site unreachable")),
@@ -67,7 +68,7 @@
     new Promise((resolve, reject) => {
       GM_xmlhttpRequest({
         method: "POST",
-        url: `${SITE}/api/ingest`,
+        url: `${BASE}/api/ingest`,
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${SECRET}` },
         data: JSON.stringify(payload),
         timeout: 10000,
