@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         King of the Hill — GMGN call out bridge
 // @namespace    koth
-// @version      1.2.1
+// @version      1.3.0
 // @description  Reads the token's call outs from gmgn.ai every few seconds and sends them to the King of the Hill site.
 // @match        https://gmgn.ai/*
 // @grant        GM_xmlhttpRequest
@@ -93,6 +93,7 @@
 
   let failures = 0;
   let total = 0;
+  const sent = new Map(); // ulid -> last signature posted
   const tick = async () => {
     let wait = EVERY_MS;
     try {
@@ -115,7 +116,12 @@
       const [messages, zh] = await Promise.all([read("en"), read("zh-CN").catch(() => [])]);
       const zhById = new Map(zh.map((m) => [m.ulid, m.display_content]));
       for (const m of messages) m.display_content_zh = zhById.get(m.ulid) || undefined;
-      const out = await post({ chain: game.chain, token: game.token, messages });
+      // Only send what changed since the last successful post (keeps the
+      // free Redis tier well within limits). An empty post is the heartbeat.
+      const sig = (m) => `${m.display_content || ""}|${m.display_content_zh || ""}`;
+      const changed = messages.filter((m) => sent.get(m.ulid) !== sig(m));
+      const out = await post({ chain: game.chain, token: game.token, messages: changed });
+      for (const m of changed) sent.set(m.ulid, sig(m));
       total += out.added;
       failures = 0;
       show(`live ${new Date().toLocaleTimeString()} · ${game.token.slice(0, 6)}…${game.token.slice(-4)} · +${total} new`);

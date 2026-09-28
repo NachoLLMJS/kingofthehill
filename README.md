@@ -19,9 +19,11 @@ Without any keys the site replays a real snapshot of the test token (demo mode).
 ## Deploy on Vercel
 
 1. Import this repo in Vercel (framework: Next.js, defaults are fine).
-2. **Storage → Marketplace → Upstash Redis → Connect to project.** It injects
-   `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` (or `KV_REST_API_*`). Required so the
-   call out history, rounds and Hall of Kings persist.
+2. **Redis (free):** create a free database at https://console.upstash.com (no card), open it,
+   and in *REST API* copy `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` into Vercel's
+   environment variables. (A Vercel Marketplace Upstash/Redis integration also works: prefixed
+   `*_KV_REST_API_*` and `REDIS_URL` are detected.) Required so history, rounds and the Hall of
+   Kings persist. Check `/api/config` → `"storage"` must be `redis-rest` or `redis-tcp`.
 3. Add the environment variables below. The game starts automatically the first time the site runs with `NEXT_PUBLIC_TOKEN_ADDRESS` (stored per token in Redis); call outs before that moment are ignored. The ticker is always `$KING`.
    Then, then **Redeploy** (`NEXT_PUBLIC_*` are baked in at build time).
 

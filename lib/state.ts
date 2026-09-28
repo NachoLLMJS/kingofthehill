@@ -11,7 +11,7 @@ const token = { chain: CHAIN, address: TOKEN_ADDRESS };
 
 // Survives dev hot reloads so the snapshot replay clock does not restart.
 const g = globalThis as unknown as {
-  __koth?: { bootAt: number; cache?: { at: number; state: GameState }; inflight?: Promise<GameState>; archive?: Map<string, Callout>; startAt?: number };
+  __koth?: { bootAt: number; cache?: { at: number; state: GameState }; inflight?: Promise<GameState>; archive?: Map<string, Callout>; startAt?: number; beatAt?: number };
 };
 g.__koth ??= { bootAt: Date.now() };
 const mem = g.__koth;
@@ -82,7 +82,12 @@ async function loadFromBridge(now: number): Promise<GameState> {
 export async function ingestCallouts(callouts: Callout[]): Promise<number> {
   const store = getStore();
   const added = await store.add(callouts);
-  await store.setMeta("lastIngestAt", String(Date.now()));
+  // Heartbeat: write at most every 15s per instance (bridge posts every 5s).
+  const now = Date.now();
+  if (callouts.length || !mem.beatAt || now - mem.beatAt > 15_000) {
+    mem.beatAt = now;
+    await store.setMeta("lastIngestAt", String(now));
+  }
   if (added) mem.cache = undefined; // next read shows the new king right away
   return added;
 }

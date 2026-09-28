@@ -2,6 +2,7 @@ import "server-only";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { createClient } from "redis";
 import { CHAIN, TOKEN_ADDRESS } from "./config";
 import type { Callout } from "./types";
 
@@ -10,14 +11,16 @@ import type { Callout } from "./types";
 // stats keep accumulating over the life of the game.
 //
 // Backends:
-// - Upstash Redis (REST) when UPSTASH_REDIS_REST_URL / _TOKEN are set (Vercel).
+// - Redis over REST (Upstash): *_REDIS_REST_URL/_TOKEN or *KV_REST_API_URL/_TOKEN,
+//   with or without a custom prefix added by the Vercel integration.
+// - Redis over TCP: REDIS_URL / KV_URL (redis:// or rediss://), e.g. Redis Cloud.
 // - A JSON file in .data/ otherwise (local dev; not persistent on Vercel).
 export type Store = {
   all(): Promise<Callout[]>;
   add(callouts: Callout[]): Promise<number>; // returns how many were new
   getMeta(name: string): Promise<string | null>;
   setMeta(name: string, value: string): Promise<void>;
-  kind: "redis" | "file";
+  kind: "redis-rest" | "redis-tcp" | "file";
 };
 
 const KEY = `koth:callouts:${CHAIN}:${TOKEN_ADDRESS}`;
@@ -30,10 +33,64 @@ function merge(prev: Callout | undefined, next: Callout): Callout {
 }
 const same = (a: Callout, b: Callout) => a.textEn === b.textEn && a.textZh === b.textZh;
 
+// Find an env var by suffix, tolerating integration prefixes (e.g. STORAGE_KV_REST_API_URL).
+function envBySuffix(...suffixes: string[]) {
+  for (const suf of suffixes) {
+    if (process.env[suf]) return process.env[suf];
+    const k = Object.keys(process.env).find((n) => n.endsWith(`_${suf}`) && process.env[n]);
+    if (k) return process.env[k];
+  }
+  return undefined;
+}
+
+/** Names (never values) of storage-related env vars, for the deploy check. */
+export function storageEnvNames() {
+  return Object.keys(process.env).filter((n) => /REDIS|KV_|UPSTASH/.test(n)).sort();
+}
+
+let cached: Store | null = null;
 export function getStore(): Store {
-  const url = process.env.UPSTASH_REDIS_REST_URL ?? process.env.KV_REST_API_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN ?? process.env.KV_REST_API_TOKEN;
-  return url && token ? redisStore(url, token) : fileStore();
+  if (cached) return cached;
+  const restUrl = envBySuffix("UPSTASH_REDIS_REST_URL", "KV_REST_API_URL");
+  const restToken = envBySuffix("UPSTASH_REDIS_REST_TOKEN", "KV_REST_API_TOKEN");
+  const tcpUrl = envBySuffix("REDIS_URL", "KV_URL");
+  cached = restUrl && restToken ? redisStore(restUrl, restToken) : tcpUrl?.startsWith("redis") ? tcpStore(tcpUrl) : fileStore();
+  return cached;
+}
+
+// Same commands as the REST store, over a single reused TCP connection.
+function tcpStore(url: string): Store {
+  type Client = ReturnType<typeof createClient>;
+  const g = globalThis as unknown as { __kothRedis?: Promise<Client> };
+  const client = () =>
+    (g.__kothRedis ??= (async () => {
+      const c = createClient({ url }) as unknown as Client;
+      c.on("error", (e) => console.error("[koth] redis:", e.message));
+      await c.connect();
+      return c;
+    })());
+  return {
+    kind: "redis-tcp",
+    async all() {
+      const h = await (await client()).hGetAll(KEY);
+      return Object.values(h).map((v) => JSON.parse(v) as Callout);
+    },
+    async add(callouts) {
+      if (!callouts.length) return 0;
+      const c = await client();
+      const prev = (await c.hmGet(KEY, callouts.map((x) => x.id))).map((v) => (v ? (JSON.parse(v) as Callout) : undefined));
+      const writes = callouts.map((x, i) => [prev[i], merge(prev[i], x)] as const).filter(([p, m]) => !p || !same(p, m));
+      if (!writes.length) return 0;
+      await c.hSet(KEY, Object.fromEntries(writes.map(([, m]) => [m.id, JSON.stringify(m)])));
+      return writes.filter(([p]) => !p).length;
+    },
+    async getMeta(name) {
+      return (await (await client()).get(`${KEY}:meta:${name}`)) ?? null;
+    },
+    async setMeta(name, value) {
+      await (await client()).set(`${KEY}:meta:${name}`, value);
+    },
+  };
 }
 
 function redisStore(url: string, token: string): Store {
@@ -48,7 +105,7 @@ function redisStore(url: string, token: string): Store {
     return ((await res.json()) as { result: unknown }).result;
   };
   return {
-    kind: "redis",
+    kind: "redis-rest",
     // Hash of ulid → JSON; HSETNX semantics via HSET is fine because a
     // call out never changes once posted.
     async all() {
@@ -78,7 +135,7 @@ function fileStore(): Store {
   // Vercel's filesystem is read-only except /tmp, which is wiped between
   // instances: fine to keep the site up, but set Upstash Redis in production.
   const dir = process.env.VERCEL ? path.join(os.tmpdir(), "koth") : path.join(process.cwd(), ".data");
-  if (process.env.VERCEL) console.warn("[koth] No Upstash Redis configured: call out history will not persist on Vercel.");
+  if (process.env.VERCEL) console.warn("[koth] No Redis configured: call out history will not persist on Vercel.");
   const file = path.join(dir, `callouts-${CHAIN}-${TOKEN_ADDRESS}.json`);
   const metaFile = file.replace(/\.json$/, ".meta.json");
   const readMeta = async () => {
