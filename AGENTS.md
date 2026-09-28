@@ -29,8 +29,7 @@ A game site for a Flap token: the **last GMGN call out** on the token holds the 
 
 ## Design direction: "The Descent" (v4, 2026-09-27)
 The whole page is one mountain, read top to bottom. **Continuity between layers is the top priority**: no hard cuts. Every boundary is bridged by art that overlaps both neighbours.
-- **Summit** (hero, title screen): wordmark centred at the top, clock on the left, current king on the right, and the croc on the peak in the middle (`summit2-*`). Its base fills the full width, and its trail exits at the bottom centre.
-- **Slopes** (challengers): `mountain-face2-*` (its trail runs top to bottom at x≈50%, measured to match the summit's exit at 50.3%) fades in over the summit's base, anchored at the top so they connect at any width. At the end sits a separate `mine-entrance-*` sprite, placed on the ground stratum's grass.
+- **Summit + slopes** (hero + challengers): ONE continuous painting (`mountain-full-*`: croc on the peak, trail winding down, and a mine entrance at the bottom) behind both sections. `components/Mountain.tsx` sizes it so the croc's feet land on `[data-croc-anchor]` in the hero and the entrance lands at the wrapper bottom. It solves the wrapper height from where the content ends (`[data-content-end]`) and never draws the art narrower than 1.2× the viewport. This replaced summit/slope/ledge pieces, which always showed a seam.
 - **Stratum "ground"**: a cross-section of grass, soil and rock with no shaft or ladder (Nicol's call).
 - **Mine** (how to play): mine art header, three wooden signs on chains, and a "Mine rules" plank.
 - **Stratum "rock"**: rock with crystals above the crypt's stone arches (no ladder).

@@ -19,19 +19,10 @@ export const Feed = memo(function Feed({ state, now }: { state: GameState; now: 
   const { stats } = state;
 
   return (
-    <section id="challengers" aria-labelledby="feed-title" className="relative z-[6] scroll-mt-16 overflow-hidden [--sw:170vw] sm:[--sw:130vw] lg:[--sw:min(max(1180px,100vw),2000px)]" {...zoneAttrs("challengers")}>
+    <section id="challengers" aria-labelledby="feed-title" className="relative z-10 flex flex-1 flex-col scroll-mt-16" {...zoneAttrs("challengers")}>
       {/* One painted mountainside: the trail winds down to the mine entrance at the bottom. */}
-      {/* The slope is scaled from the summit's rendered width (--sw) so both
-          trails meet at the same x and thickness at every breakpoint. */}
-      <div
-        className="absolute inset-0 bg-[#6a9a3a] bg-[image:url(/assets/mountain-face2-800.webp)] bg-repeat-y [image-rendering:pixelated] sm:bg-[image:url(/assets/mountain-face2-1440.webp)]"
-        style={{ backgroundSize: "calc(var(--sw) * 1.0535) auto", backgroundPosition: "calc(50% + var(--sw) * 0.0046) calc(var(--sw) * 1.12 * 0.2754 * 0.42 - 36px)" }}
-        aria-hidden
-      />
-      <div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent_0,transparent_420px,rgb(15_29_58/.22)_900px,rgb(15_29_58/.25)_75%,transparent_92%)]" aria-hidden />
 
-      {/* Leave room for the seam ledge that hangs into the top of this section. */}
-      <div className="relative mx-auto max-w-[1100px] px-4 sm:px-6" style={{ paddingTop: "calc(var(--sw) * 1.12 * 0.2754 * 0.42 + 24px)" }}>
+      <div data-mountain-content className="relative mx-auto max-w-[1100px] px-4 pt-10 sm:px-6">
         <header data-reveal className="px-box mx-auto max-w-[620px] bg-parchment p-6 text-center text-ink sm:p-8">
           <p className="font-display text-sm font-bold tracking-[0.2em] text-grass-dk uppercase">{t("slopes_kicker")}</p>
           <h2 id="feed-title" className="mt-2 font-display text-4xl leading-none font-bold sm:text-5xl">
@@ -68,34 +59,19 @@ export const Feed = memo(function Feed({ state, now }: { state: GameState; now: 
             </ol>
           )}
 
-          {state.recent.length > shown ? (
-            <div className="relative mt-12 flex justify-center">
+          <div className="relative mt-12 flex flex-wrap justify-center gap-4" data-content-end>
+            {state.recent.length > shown ? (
               <button type="button" className="btn-px btn-px--grass btn-px--sm" onClick={() => setShown((n) => n + PAGE)}>
                 {t("more_trail")}
               </button>
-            </div>
-          ) : null}
+            ) : null}
+            <a href="#mine" className="btn-px btn-px--sm" style={{ ["--btn-bg" as string]: "#7a5030", ["--btn-fg" as string]: "#fbd322" }}>
+              {t("enter_mine")} <span aria-hidden>▼</span>
+            </a>
+          </div>
         </div>
       </div>
 
-      {/* The trail ends at the mine entrance, which sits on the grass of the ground cross-section below. */}
-      <div className="relative flex h-[380px] flex-col items-center sm:h-[440px] lg:h-[520px]">
-        <a href="#mine" className="px-box relative z-10 mt-4 bg-[#5b3a22] px-4 py-2 font-display text-sm font-bold tracking-[0.18em] text-gold uppercase hover:bg-[#7a5030]">
-          {t("enter_mine")} <span aria-hidden>▼</span>
-        </a>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/assets/mine-entrance-900.webp"
-          srcSet="/assets/mine-entrance-480.webp 480w, /assets/mine-entrance-900.webp 900w"
-          sizes="clamp(300px, 34vw, 560px)"
-          alt="A mine entrance in a mossy rock outcrop, with a lantern and rails leading in"
-          width={900}
-          height={612}
-          loading="lazy"
-          className="pixelated absolute left-1/2 w-[clamp(300px,34vw,560px)] -translate-x-1/2"
-          style={{ bottom: "calc(max(100vw, 760px) * 0.03)" }}
-        />
-      </div>
     </section>
   );
 });

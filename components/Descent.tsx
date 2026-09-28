@@ -84,26 +84,3 @@ export function Stratum({
   );
 }
 
-// Foreground ledge of bushes, pines and rocks laid over the seam between the
-// summit art and the slope art (they're painted at different pixel scales).
-// Its straight trail sits on both trails. Width follows the summit's rendered
-// width (--sw) so the trails stay aligned at every breakpoint.
-export function SeamLedge() {
-  return (
-    <div style={{ zIndex: 8 }} className="pointer-events-none relative h-0 overflow-visible [--sw:170vw] sm:[--sw:130vw] lg:[--sw:min(max(1180px,100vw),2000px)]" aria-hidden>
-      <div className="absolute top-0 left-1/2 w-screen -translate-x-1/2 overflow-x-clip">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/assets/seam-ledge-1600.webp"
-          srcSet="/assets/seam-ledge-960.webp 960w, /assets/seam-ledge-1600.webp 1600w, /assets/seam-ledge-2400.webp 2400w"
-          sizes="calc(var(--sw) * 1.12)"
-          alt=""
-          width={2400}
-          height={661}
-          className="pixelated relative left-1/2 block max-w-none"
-          style={{ width: "calc(var(--sw) * 1.12)", transform: "translate(calc(-50% + var(--sw) * 0.004), -58%)" }}
-        />
-      </div>
-    </div>
-  );
-}

@@ -64,7 +64,7 @@ export function Hero({ state, now, connection }: { state: GameState; now: number
     );
 
   return (
-    <section id="top" aria-labelledby="hero-title" className="sky relative flex flex-col overflow-hidden" {...zoneAttrs("top")}>
+    <section id="top" aria-labelledby="hero-title" className="relative flex flex-col lg:min-h-[760px]" {...zoneAttrs("top")}>
       <Sun />
       {/* Far range: drifts slower than the page, so the summit feels high up. */}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[60%]" aria-hidden>
@@ -88,7 +88,7 @@ export function Hero({ state, now, connection }: { state: GameState; now: number
         {crowned && winner ? `${winner.callout.name} was crowned king of the hill.` : ""}
       </p>
 
-      <div className="relative z-10 mx-auto max-w-[1320px] px-4 pt-6 sm:px-6 lg:pt-7">
+      <div data-mountain-content className="relative z-10 mx-auto max-w-[1320px] px-4 pt-6 sm:px-6 lg:pt-7">
         <h1 id="hero-title" className="flex justify-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -153,20 +153,11 @@ export function Hero({ state, now, connection }: { state: GameState; now: number
         </div>
       </div>
 
-      {/* The summit: the croc stands between the clock and the throne; the
-          mountain's base fills the bottom edge and flows into the slopes. */}
-      <div className="pointer-events-none relative z-[5] mt-4 w-[170vw] shrink-0 -translate-x-[20.6%] sm:w-[130vw] sm:-translate-x-[11.5%] lg:left-1/2 lg:mt-[-430px] lg:w-[max(1180px,100vw)] lg:max-w-[2000px] lg:-translate-x-1/2">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/assets/summit2-1600.webp"
-          srcSet="/assets/summit2-960.webp 960w, /assets/summit2-1600.webp 1600w, /assets/summit2-2400.webp 2400w"
-          sizes="(min-width: 1024px) 100vw, 170vw"
-          alt="The crowned GMGN crocodile on the summit of a grassy pixel-art mountain, with a trail winding down"
-          width={2400}
-          height={1357}
-          fetchPriority="high"
-          className={`pixelated block w-full ${crowned ? "bob" : ""}`}
-        />
+      {/* Where the croc stands: the Mountain wrapper lines the painting's croc
+          up with this point (mobile: below the CTAs; desktop: between the
+          clock and the throne). */}
+      <div className="relative h-[300px] shrink-0 lg:absolute lg:inset-x-0 lg:top-[560px] lg:h-0" aria-hidden>
+        <div data-croc-anchor className="absolute bottom-4 left-0 lg:bottom-0" />
       </div>
     </section>
   );

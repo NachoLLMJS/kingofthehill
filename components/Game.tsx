@@ -1,7 +1,8 @@
 "use client";
 
 import type { GameState } from "@/lib/types";
-import { SeamLedge, Stratum } from "./Descent";
+import { Stratum } from "./Descent";
+import { Mountain } from "./Mountain";
 import { Feed } from "./Feed";
 import { Hall } from "./Hall";
 import { Hero } from "./Hero";
@@ -12,10 +13,11 @@ export function Game({ initial }: { initial: GameState }) {
   const { state, now, connection } = useGame(initial);
   return (
     <>
-      <Hero state={state} now={now} connection={connection} />
-      <SeamLedge />
-      <Feed state={state} now={now} />
-      <Stratum kind="ground" overlapTop={0.3} overlapBottom={0.3} />
+      <Mountain>
+        <Hero state={state} now={now} connection={connection} />
+        <Feed state={state} now={now} />
+      </Mountain>
+      <Stratum kind="ground" overlapTop={0.12} overlapBottom={0.3} />
       <HowTo />
       <Stratum kind="rock" overlapTop={0.24} overlapBottom={0.36} />
       <Hall state={state} />
