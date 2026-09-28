@@ -37,7 +37,8 @@ export function useGame(initial: GameState) {
       }
     };
 
-    timer = setTimeout(tick, POLL_MS);
+    // Refresh right after hydration so a stale server render never lingers.
+    timer = setTimeout(tick, 300);
     const onVisible = () => {
       if (!document.hidden) {
         clearTimeout(timer);
