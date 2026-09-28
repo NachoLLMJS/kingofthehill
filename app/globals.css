@@ -140,6 +140,12 @@ body {
   image-rendering: pixelated;
 }
 
+@media (max-width: 1023px) {
+  .croc-summit-hero {
+    display: none;
+  }
+}
+
 /* ── Buttons ── */
 .btn-px {
   --btn-bg: var(--gold);

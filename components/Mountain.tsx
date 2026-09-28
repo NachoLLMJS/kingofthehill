@@ -2,15 +2,16 @@
 
 import { useLayoutEffect, useRef, useState } from "react";
 
-// One continuous painting (croc on the peak → switchback trail → mine entrance)
-// sits behind the hero AND the challengers section, so there is no seam.
-// It is sized so that:
-//   - the croc's feet land on [data-croc-anchor] inside the hero, and
-//   - the painted mine entrance lands on the bottom of this wrapper.
+// One continuous mountain painting (summit → switchback trail → mine entrance)
+// sits behind the hero AND the challengers section, so there is no seam. The
+// full crowned crocodile and its foreground summit are a separate transparent
+// layer so the complete character can stay visible at desktop hero scale.
+// It is sized so that the upper summit lines up with the hero anchor and the
+// painted mine entrance lands on the bottom of this wrapper.
 // The wrapper is also given a min-height so the painting is always at least as
 // wide as the viewport (its lower part must fill the full width).
 const RATIO = 1520 / 2688; // width / height of the art
-const FEET = 0.0688; // croc feet, as a fraction of the art height
+const SUMMIT_ANCHOR = 0.235; // upper summit reference row in the empty mountain art
 // The art is drawn at least this much wider than the viewport, so the croc and
 // the trail read at a good size (and the lower mountain always fills the width).
 const MIN_SCALE = 1.0;
@@ -36,14 +37,14 @@ export function Mountain({ children }: { children: React.ReactNode }) {
       const w = el.getBoundingClientRect();
       const anchorY = anchor.getBoundingClientRect().top - w.top;
       // Content must end above the entrance: solve H = C + ENTRANCE * artH,
-      // with artH = (H - anchorY) / (1 - FEET).
+      // with artH = (H - anchorY) / (1 - SUMMIT_ANCHOR).
       const end = el.querySelector<HTMLElement>("[data-content-end]");
       const C = end ? end.getBoundingClientRect().bottom - w.top : 0;
-      const k = ENTRANCE / (1 - FEET);
+      const k = ENTRANCE / (1 - SUMMIT_ANCHOR);
       const fit = (C - k * anchorY) / (1 - k);
-      const minH = Math.max(anchorY + ((1 - FEET) * w.width * MIN_SCALE) / RATIO, fit);
+      const minH = Math.max(anchorY + ((1 - SUMMIT_ANCHOR) * w.width * MIN_SCALE) / RATIO, fit);
       const H = minH;
-      const height = (H - anchorY) / (1 - FEET);
+      const height = (H - anchorY) / (1 - SUMMIT_ANCHOR);
       const top = H - height;
       // Backdrop: its snowy range peeks out beside the peak, and its opaque
       // forest must reach below the row where the mountain fills the width.
@@ -83,15 +84,24 @@ export function Mountain({ children }: { children: React.ReactNode }) {
       />
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src="/assets/mountain-full-1520.webp?v=right-summit-1"
-        srcSet="/assets/mountain-full-1520.webp?v=right-summit-1 1520w, /assets/mountain-full-2280.webp?v=right-summit-1 2280w, /assets/mountain-full-3040.webp?v=right-summit-1 3040w"
+        src="/assets/mountain-full-1520.webp?v=full-dino-2"
+        srcSet="/assets/mountain-full-1520.webp?v=full-dino-2 1520w, /assets/mountain-full-2280.webp?v=full-dino-2 2280w, /assets/mountain-full-3040.webp?v=full-dino-2 3040w"
         sizes={box ? `${Math.round(box.height * RATIO)}px` : "100vw"}
-        alt="The crowned GMGN crocodile on the peak of a grassy pixel-art mountain; a trail winds all the way down to a mine entrance"
+        alt=""
         width={1520}
         height={2688}
         fetchPriority="high"
         className="pointer-events-none absolute left-1/2 z-[1] max-w-none -translate-x-1/2 select-none"
         style={box ? { top: box.top, height: box.height, width: Math.round(box.height * RATIO) } : { visibility: "hidden" }}
+      />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/assets/croc-summit-hero.webp?v=transparent-full-1"
+        alt="The crowned crocodile standing on a grassy pixel-art mountain summit"
+        width={1179}
+        height={1334}
+        fetchPriority="high"
+        className="croc-summit-hero pixelated pointer-events-none absolute top-[150px] right-[2%] z-[2] h-auto w-[min(42vw,620px)] select-none"
       />
       {children}
     </div>

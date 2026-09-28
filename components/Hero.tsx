@@ -138,10 +138,10 @@ export function Hero({ state, now, connection }: { state: GameState; now: number
         </div>
       </div>
 
-      {/* Where the croc stands: the Mountain wrapper lines the painting's croc
-          up with this point (mobile: below the CTAs; desktop: between the
-          clock and the throne). */}
-      <div className="relative h-[300px] shrink-0 lg:absolute lg:inset-x-0 lg:top-[560px] lg:h-0" aria-hidden>
+      {/* Mountain summit alignment point. The full crocodile/summit foreground
+          is a separate transparent layer, so it is never cropped from the
+          continuous mountain painting. */}
+      <div className="relative h-[300px] shrink-0 lg:absolute lg:inset-x-0 lg:top-[820px] lg:h-0" aria-hidden>
         <div data-croc-anchor className="absolute bottom-4 left-0 lg:bottom-0" />
       </div>
     </section>
