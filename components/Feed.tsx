@@ -25,12 +25,13 @@ export const Feed = memo(function Feed({ state, now }: { state: GameState; now: 
           trails meet at the same x and thickness at every breakpoint. */}
       <div
         className="absolute inset-0 bg-[#6a9a3a] bg-[image:url(/assets/mountain-face2-800.webp)] bg-repeat-y [image-rendering:pixelated] sm:bg-[image:url(/assets/mountain-face2-1440.webp)]"
-        style={{ backgroundSize: "calc(var(--sw) * 1.0535) auto", backgroundPosition: "calc(50% + var(--sw) * 0.0046) 0" }}
+        style={{ backgroundSize: "calc(var(--sw) * 1.0535) auto", backgroundPosition: "calc(50% + var(--sw) * 0.0046) calc(var(--sw) * 1.12 * 0.2754 * 0.42 - 36px)" }}
         aria-hidden
       />
       <div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent_0,transparent_420px,rgb(15_29_58/.22)_900px,rgb(15_29_58/.25)_75%,transparent_92%)]" aria-hidden />
 
-      <div className="relative mx-auto max-w-[1100px] px-4 pt-24 sm:px-6">
+      {/* Leave room for the seam ledge that hangs into the top of this section. */}
+      <div className="relative mx-auto max-w-[1100px] px-4 sm:px-6" style={{ paddingTop: "calc(var(--sw) * 1.12 * 0.2754 * 0.42 + 24px)" }}>
         <header data-reveal className="px-box mx-auto max-w-[620px] bg-parchment p-6 text-center text-ink sm:p-8">
           <p className="font-display text-sm font-bold tracking-[0.2em] text-grass-dk uppercase">{t("slopes_kicker")}</p>
           <h2 id="feed-title" className="mt-2 font-display text-4xl leading-none font-bold sm:text-5xl">
