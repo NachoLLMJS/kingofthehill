@@ -4,6 +4,7 @@ import { BSCSCAN_ADDRESS_URL, FLAP_TOKEN_URL, GMGN_TOKEN_URL, TOKEN_ADDRESS } fr
 import { shortAddr } from "@/lib/format";
 import { LangSwitch, useI18n, type Key } from "@/lib/i18n";
 import { CopyButton } from "./CopyButton";
+import { XButton } from "./XButton";
 import { zoneAttrs } from "./Descent";
 
 const LINKS = [
@@ -22,10 +23,13 @@ export function Footer() {
         <div>
           <a href="#top" className="inline-flex items-center gap-3" aria-label={t("back_summit")}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/assets/logo-wordmark-600.webp" alt="King of the Hill" width={600} height={209} loading="lazy" className="pixelated h-11 w-auto" />
+            <img src="/assets/logo-wordmark-600.webp" alt="King of the Hill" width={600} height={224} loading="lazy" className="pixelated h-11 w-auto" />
           </a>
           <p className="mt-4 max-w-[34ch] text-sm leading-relaxed text-cloud/75">{t("footer_tagline")}</p>
-          <LangSwitch className="mt-5" />
+          <div className="mt-5 flex items-center gap-3">
+            <XButton />
+            <LangSwitch />
+          </div>
         </div>
 
         <nav aria-label="Footer">

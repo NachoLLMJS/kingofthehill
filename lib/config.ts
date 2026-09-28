@@ -21,6 +21,9 @@ export const BREAK_SECONDS = Number(process.env.NEXT_PUBLIC_BREAK_SECONDS ?? 60)
 // Empty = every call out GMGN returns counts.
 export const GAME_START = Date.parse(process.env.NEXT_PUBLIC_GAME_START ?? "") || 0;
 
+// Project X/Twitter profile (set in Vercel). Button hides when empty.
+export const TWITTER_URL = process.env.NEXT_PUBLIC_TWITTER_URL ?? "";
+
 export const GMGN_TOKEN_URL = `https://gmgn.ai/${CHAIN}/token/${TOKEN_ADDRESS}`;
 export const FLAP_TOKEN_URL = `https://flap.sh/bnb/${TOKEN_ADDRESS}`;
 export const BSCSCAN_ADDRESS_URL = (addr: string) => `https://bscscan.com/address/${addr}`;

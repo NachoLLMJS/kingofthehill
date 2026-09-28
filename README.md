@@ -1,36 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# King of the Hill
 
-## Getting Started
+Pixel-art game site for a Flap token on BSC. The **last GMGN call out** on the token holds the hill.
+Every call out resets a 5-minute clock; when it reaches zero the last caller is crowned, confetti
+fires, and after a 1-minute break a new round opens.
 
-First, run the development server:
+Next.js 16 (App Router) + Tailwind v4. See `AGENTS.md` for the architecture and design notes.
+
+## Run locally
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env.local   # fill in what you need
+npm run dev -- --port 3217
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Without any keys the site replays a real snapshot of the test token (demo mode).
 
 ## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Import this repo in Vercel (framework: Next.js, defaults are fine).
+2. **Storage → Marketplace → Upstash Redis → Connect to project.** It injects
+   `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` (or `KV_REST_API_*`). Required so the
+   call out history, rounds and Hall of Kings persist.
+3. Add the environment variables below, then **Redeploy** (`NEXT_PUBLIC_*` are baked in at build time).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Variable | Required | Example / notes |
+|---|---|---|
+| `NEXT_PUBLIC_TOKEN_ADDRESS` | yes | Contract of the token being played |
+| `NEXT_PUBLIC_CHAIN` | no | `bsc` (default) |
+| `NEXT_PUBLIC_TOKEN_TICKER` | yes | `$KING` |
+| `NEXT_PUBLIC_GAME_START` | recommended | Launch moment, ISO: `2026-10-01T18:00:00Z`. Earlier call outs are ignored |
+| `NEXT_PUBLIC_ROUND_SECONDS` | no | `300` (5 min) |
+| `NEXT_PUBLIC_BREAK_SECONDS` | no | `60` (1 min) |
+| `NEXT_PUBLIC_TWITTER_URL` | no | `https://x.com/yourproject` — X button in navbar/footer (hidden if empty) |
+| `INGEST_SECRET` | yes (bridge) | Long random string; same value in the userscript |
+| `UPSTASH_REDIS_REST_URL` / `_TOKEN` | yes | Injected by the Upstash integration |
+| `GMGN_AK` / `GMGN_SK` | later | GMGN Callout OpenAPI keys; when set the server polls GMGN itself and the bridge is not needed (GMGN must allowlist the server IP) |
+
+## Feeding call outs (bridge)
+
+Until GMGN issues Callout OpenAPI keys, call outs come from `bridge/koth-bridge.user.js`
+(Tampermonkey on a gmgn.ai tab). Set `SITE` to your Vercel URL and `SECRET` to `INGEST_SECRET`,
+keep a gmgn.ai tab open. Details in `bridge/README.md`.

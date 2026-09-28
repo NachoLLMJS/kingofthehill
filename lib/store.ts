@@ -1,5 +1,6 @@
 import "server-only";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
 import { CHAIN, TOKEN_ADDRESS } from "./config";
 import type { Callout } from "./types";
@@ -74,7 +75,11 @@ function redisStore(url: string, token: string): Store {
 }
 
 function fileStore(): Store {
-  const file = path.join(process.cwd(), ".data", `callouts-${CHAIN}-${TOKEN_ADDRESS}.json`);
+  // Vercel's filesystem is read-only except /tmp, which is wiped between
+  // instances: fine to keep the site up, but set Upstash Redis in production.
+  const dir = process.env.VERCEL ? path.join(os.tmpdir(), "koth") : path.join(process.cwd(), ".data");
+  if (process.env.VERCEL) console.warn("[koth] No Upstash Redis configured: call out history will not persist on Vercel.");
+  const file = path.join(dir, `callouts-${CHAIN}-${TOKEN_ADDRESS}.json`);
   const metaFile = file.replace(/\.json$/, ".meta.json");
   const readMeta = async () => {
     try {

@@ -82,7 +82,7 @@ export function Hero({ state, now, connection }: { state: GameState; now: number
             sizes="(min-width: 1024px) 440px, 300px"
             alt="King of the Hill"
             width={1200}
-            height={418}
+            height={450}
             fetchPriority="high"
             className="pixelated w-[300px] drop-shadow-[0_6px_0_rgb(15_29_58/.3)] lg:w-[440px]"
           />

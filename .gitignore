@@ -47,3 +47,6 @@ next-env.d.ts
 
 # visual QA captures
 .shots/
+
+# design source files (originals, iterations) — kept locally only
+assets-src/
