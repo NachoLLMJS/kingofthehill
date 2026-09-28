@@ -8,7 +8,7 @@ import { zoneAttrs } from "./Descent";
 import { PixelAvatar, PixelCrown } from "./pixel";
 import { Flag } from "./sprites";
 
-const PAGE = 10;
+const PAGE = 8;
 
 // The slopes: challengers are camps along a switchback trail down the
 // mountain. Newest call out sits closest to the summit.
@@ -22,7 +22,7 @@ export const Feed = memo(function Feed({ state, now }: { state: GameState; now: 
     <section id="challengers" aria-labelledby="feed-title" className="relative z-10 flex flex-1 flex-col scroll-mt-16" {...zoneAttrs("challengers")}>
       {/* One painted mountainside: the trail winds down to the mine entrance at the bottom. */}
 
-      <div data-mountain-content className="relative mx-auto max-w-[1100px] px-4 pt-10 sm:px-6">
+      <div data-mountain-content className="relative mx-auto max-w-[1100px] px-4 pt-[300px] sm:pt-[clamp(160px,15vw,300px)] sm:px-6">
         <header data-reveal className="px-box mx-auto max-w-[620px] bg-parchment p-6 text-center text-ink sm:p-8">
           <p className="font-display text-sm font-bold tracking-[0.2em] text-grass-dk uppercase">{t("slopes_kicker")}</p>
           <h2 id="feed-title" className="mt-2 font-display text-4xl leading-none font-bold sm:text-5xl">

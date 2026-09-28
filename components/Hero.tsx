@@ -66,21 +66,6 @@ export function Hero({ state, now, connection }: { state: GameState; now: number
   return (
     <section id="top" aria-labelledby="hero-title" className="relative flex flex-col lg:min-h-[760px]" {...zoneAttrs("top")}>
       <Sun />
-      {/* Far range: drifts slower than the page, so the summit feels high up. */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[60%]" aria-hidden>
-        <div data-parallax="0.12" className="absolute inset-x-[-4%] bottom-[-2%] will-change-transform">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/assets/far-range-1920.webp"
-            srcSet="/assets/far-range-1280.webp 1280w, /assets/far-range-1920.webp 1920w"
-            sizes="108vw"
-            alt=""
-            width={1920}
-            height={823}
-            className="pixelated w-full opacity-90"
-          />
-        </div>
-      </div>
       <Clouds />
       <Birds />
       <Confetti burst={burst} name={winner?.callout.name} />
