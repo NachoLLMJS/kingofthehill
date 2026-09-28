@@ -138,9 +138,7 @@ export function Hero({ state, now, connection }: { state: GameState; now: number
         </div>
       </div>
 
-      {/* Mountain summit alignment point. The full crocodile/summit foreground
-          is a separate transparent layer, so it is never cropped from the
-          continuous mountain painting. */}
+      {/* Upper-mountain alignment point for the single unified transparent art. */}
       <div className="relative h-[300px] shrink-0 lg:absolute lg:inset-x-0 lg:top-[820px] lg:h-0" aria-hidden>
         <div data-croc-anchor className="absolute bottom-4 left-0 lg:bottom-0" />
       </div>
