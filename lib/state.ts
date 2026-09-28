@@ -1,6 +1,6 @@
 import "server-only";
 import snapshot from "@/data/callouts-snapshot.json";
-import { BREAK_SECONDS, CHAIN, GAME_START, ROUND_SECONDS, SERVER_CACHE_MS, TOKEN_ADDRESS } from "./config";
+import { BREAK_SECONDS, CHAIN, ROUND_SECONDS, SERVER_CACHE_MS, TOKEN_ADDRESS } from "./config";
 import { buildState } from "./game";
 import { fetchNewCallouts, hasGmgnKeys, toCallout, type RawMessage } from "./gmgn";
 import { bridgeEnabled } from "./ingest";
@@ -11,7 +11,7 @@ const token = { chain: CHAIN, address: TOKEN_ADDRESS };
 
 // Survives dev hot reloads so the snapshot replay clock does not restart.
 const g = globalThis as unknown as {
-  __koth?: { bootAt: number; cache?: { at: number; state: GameState }; inflight?: Promise<GameState>; archive?: Map<string, Callout> };
+  __koth?: { bootAt: number; cache?: { at: number; state: GameState }; inflight?: Promise<GameState>; archive?: Map<string, Callout>; startAt?: number };
 };
 g.__koth ??= { bootAt: Date.now() };
 const mem = g.__koth;
@@ -38,21 +38,34 @@ async function load(now: number): Promise<GameState> {
   return snapshotState(now);
 }
 
+// The game starts the first time the site runs with this token address:
+// that moment is stored (per token) and earlier call outs never count.
+async function gameStart(): Promise<number> {
+  if (mem.startAt) return mem.startAt;
+  const store = getStore();
+  const saved = Number(await store.getMeta("startAt"));
+  if (saved) return (mem.startAt = saved);
+  const now = Date.now();
+  await store.setMeta("startAt", String(now));
+  return (mem.startAt = now);
+}
+
 async function loadFromApi(now: number): Promise<GameState> {
   const store = getStore();
+  const start = await gameStart();
   try {
     // Cold start: pull the whole archive once, then keep it in memory.
     if (!mem.archive) mem.archive = new Map((await store.all()).map((c) => [c.id, c]));
-    const fresh = await fetchNewCallouts(CHAIN, TOKEN_ADDRESS, new Set(mem.archive.keys()), GAME_START);
+    const fresh = await fetchNewCallouts(CHAIN, TOKEN_ADDRESS, new Set(mem.archive.keys()), start);
     if (fresh.length) {
       await store.add(fresh);
       for (const c of fresh) mem.archive.set(c.id, c);
     }
-    return live(now);
+    return live(now, start);
   } catch (err) {
     const error = err instanceof Error ? err.message : "GMGN unavailable";
     console.error("[koth] sync failed:", error);
-    return live(now, error);
+    return live(now, start, error);
   }
 }
 
@@ -60,10 +73,10 @@ async function loadFromApi(now: number): Promise<GameState> {
 // the shared archive rather than a per-instance copy.
 async function loadFromBridge(now: number): Promise<GameState> {
   const store = getStore();
-  const [all, last] = await Promise.all([store.all(), store.getMeta("lastIngestAt")]);
+  const [all, last, start] = await Promise.all([store.all(), store.getMeta("lastIngestAt"), gameStart()]);
   mem.archive = new Map(all.map((c) => [c.id, c]));
   const offline = !last || now - Number(last) > BRIDGE_STALE_MS;
-  return live(now, offline ? "Bridge offline" : undefined);
+  return live(now, start, offline ? "Bridge offline" : undefined);
 }
 
 export async function ingestCallouts(callouts: Callout[]): Promise<number> {
@@ -74,8 +87,8 @@ export async function ingestCallouts(callouts: Callout[]): Promise<number> {
   return added;
 }
 
-function live(now: number, error?: string): GameState {
-  const callouts = [...(mem.archive?.values() ?? [])].filter((c) => c.at >= GAME_START);
+function live(now: number, start: number, error?: string): GameState {
+  const callouts = [...(mem.archive?.values() ?? [])].filter((c) => c.at >= start);
   return buildState({ callouts, now, roundSeconds: ROUND_SECONDS, breakSeconds: BREAK_SECONDS, token, source: "live", stale: Boolean(error), error });
 }
 
