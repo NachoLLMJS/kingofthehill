@@ -22,9 +22,7 @@ export function Footer() {
         <div>
           <a href="#top" className="inline-flex items-center gap-3" aria-label={t("back_summit")}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/assets/logo-emblem-128.webp" alt="" width={48} height={48} loading="lazy" className="pixelated h-12 w-12" />
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/assets/logo-wordmark-600.webp" alt="King of the Hill" width={600} height={227} loading="lazy" className="pixelated h-11 w-auto" />
+            <img src="/assets/logo-wordmark-600.webp" alt="King of the Hill" width={600} height={209} loading="lazy" className="pixelated h-11 w-auto" />
           </a>
           <p className="mt-4 max-w-[34ch] text-sm leading-relaxed text-cloud/75">{t("footer_tagline")}</p>
           <LangSwitch className="mt-5" />

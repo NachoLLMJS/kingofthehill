@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { memo, useState } from "react";
 import { BSCSCAN_ADDRESS_URL } from "@/lib/config";
 import { duration, shortAddr } from "@/lib/format";
 import { calloutText, useI18n } from "@/lib/i18n";
@@ -11,7 +11,7 @@ import { PixelAvatar, PixelCrown } from "./pixel";
 const PAGE = 6;
 
 // The crypt of kings: every crowned king rests in a stone tomb with their crown.
-export function Hall({ state }: { state: GameState }) {
+export const Hall = memo(function Hall({ state }: { state: GameState }) {
   const { t, lang } = useI18n();
   const [shown, setShown] = useState(PAGE);
   const winners = state.winners.slice(0, shown);
@@ -118,4 +118,4 @@ export function Hall({ state }: { state: GameState }) {
       <div className="h-6" />
     </section>
   );
-}
+});

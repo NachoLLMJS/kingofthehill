@@ -53,9 +53,11 @@ export function useGame(initial: GameState) {
   }, []);
 
   useEffect(() => {
+    // Poll 4×/s for accuracy but only commit whole seconds: React skips the
+    // render when the value is unchanged, so the page updates once a second.
     const id = setInterval(() => {
       skew.current ??= initial.serverNow - Date.now();
-      setNow(Date.now() + skew.current);
+      setNow(Math.floor((Date.now() + skew.current) / 1000) * 1000);
     }, 250);
     return () => clearInterval(id);
   }, [initial.serverNow]);

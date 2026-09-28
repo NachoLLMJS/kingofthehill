@@ -22,9 +22,7 @@ export function Nav() {
       <nav aria-label="Main" className="mx-auto flex h-16 max-w-[1240px] items-center gap-4 px-4 sm:px-6">
         <a href="#top" className="flex items-center gap-3" aria-label="King of the Hill — home">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/assets/logo-emblem-128.webp" alt="" width={44} height={44} className="pixelated h-11 w-11" />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/assets/logo-wordmark-600.webp" alt="King of the Hill" width={600} height={227} className="pixelated h-9 w-auto" />
+          <img src="/assets/logo-wordmark-600.webp" alt="King of the Hill" width={600} height={209} className="pixelated h-10 w-auto" />
         </a>
 
         <ul className="ml-6 hidden items-center gap-1 lg:flex">

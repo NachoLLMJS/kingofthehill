@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { memo, useState } from "react";
 import { ago, duration, shortAddr } from "@/lib/format";
 import { calloutText, useI18n } from "@/lib/i18n";
 import type { FeedItem, GameState } from "@/lib/types";
@@ -12,22 +12,25 @@ const PAGE = 10;
 
 // The slopes: challengers are camps along a switchback trail down the
 // mountain. Newest call out sits closest to the summit.
-export function Feed({ state, now }: { state: GameState; now: number }) {
+export const Feed = memo(function Feed({ state, now }: { state: GameState; now: number }) {
   const { t } = useI18n();
   const [shown, setShown] = useState(PAGE);
   const items = state.recent.slice(0, shown);
   const { stats } = state;
 
   return (
-    <section id="challengers" aria-labelledby="feed-title" className="relative z-[6] -mt-[72px] scroll-mt-16 overflow-hidden" {...zoneAttrs("challengers")}>
+    <section id="challengers" aria-labelledby="feed-title" className="relative z-[6] scroll-mt-16 overflow-hidden [--sw:170vw] sm:[--sw:130vw] lg:[--sw:min(max(1180px,100vw),2000px)]" {...zoneAttrs("challengers")}>
       {/* One painted mountainside: the trail winds down to the mine entrance at the bottom. */}
+      {/* The slope is scaled from the summit's rendered width (--sw) so both
+          trails meet at the same x and thickness at every breakpoint. */}
       <div
-        className="absolute inset-0 bg-[#6a9a3a] bg-[image:image-set(url(/assets/mountain-face2-800.webp)_1x,url(/assets/mountain-face2-1440.webp)_2x)] bg-cover bg-[position:50%_0] [image-rendering:pixelated] [mask-image:linear-gradient(to_bottom,transparent_0,black_56px)] lg:bg-[image:url(/assets/mountain-face2-1440.webp)]"
+        className="absolute inset-0 bg-[#6a9a3a] bg-[image:url(/assets/mountain-face2-800.webp)] bg-repeat-y [image-rendering:pixelated] sm:bg-[image:url(/assets/mountain-face2-1440.webp)]"
+        style={{ backgroundSize: "calc(var(--sw) * 1.0535) auto", backgroundPosition: "calc(50% + var(--sw) * 0.0046) 0" }}
         aria-hidden
       />
-      <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgb(15_29_58/.05),rgb(15_29_58/.25)_40%,rgb(15_29_58/.25)_75%,transparent_92%)]" aria-hidden />
+      <div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent_0,transparent_420px,rgb(15_29_58/.22)_900px,rgb(15_29_58/.25)_75%,transparent_92%)]" aria-hidden />
 
-      <div className="relative mx-auto max-w-[1100px] px-4 pt-32 sm:px-6">
+      <div className="relative mx-auto max-w-[1100px] px-4 pt-24 sm:px-6">
         <header data-reveal className="px-box mx-auto max-w-[620px] bg-parchment p-6 text-center text-ink sm:p-8">
           <p className="font-display text-sm font-bold tracking-[0.2em] text-grass-dk uppercase">{t("slopes_kicker")}</p>
           <h2 id="feed-title" className="mt-2 font-display text-4xl leading-none font-bold sm:text-5xl">
@@ -53,7 +56,13 @@ export function Feed({ state, now }: { state: GameState; now: number }) {
           ) : (
             <ol className="relative" aria-label="Recent call outs, newest first">
               {items.map((c, i) => (
-                <Camp key={c.id} c={c} i={i} now={now} isKing={state.status === "live" && state.king?.id === c.id} />
+                <Camp
+                  key={c.id}
+                  c={c}
+                  i={i}
+                  isKing={state.status === "live" && state.king?.id === c.id}
+                  now={state.status === "live" && state.king?.id === c.id ? now : Math.floor(now / 15_000) * 15_000}
+                />
               ))}
             </ol>
           )}
@@ -88,9 +97,9 @@ export function Feed({ state, now }: { state: GameState; now: number }) {
       </div>
     </section>
   );
-}
+});
 
-function Camp({ c, i, now, isKing }: { c: FeedItem; i: number; now: number; isKing: boolean }) {
+const Camp = memo(function Camp({ c, i, now, isKing }: { c: FeedItem; i: number; now: number; isKing: boolean }) {
   const { t, lang } = useI18n();
   const right = i % 2 === 1;
   return (
@@ -128,7 +137,7 @@ function Camp({ c, i, now, isKing }: { c: FeedItem; i: number; now: number; isKi
       </article>
     </li>
   );
-}
+});
 
 function ReignTag({ c, isKing, now }: { c: FeedItem; isKing: boolean; now: number }) {
   const { t } = useI18n();

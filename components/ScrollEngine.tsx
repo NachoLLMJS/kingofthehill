@@ -30,15 +30,18 @@ export function ScrollEngine() {
       const vh = window.innerHeight;
       const max = Math.max(1, root.scrollHeight - vh);
       const p = Math.min(1, Math.max(0, window.scrollY / max));
-      root.style.setProperty("--p", p.toFixed(4));
-
       if (!reduce.matches) {
+        // Read every position first, then write: interleaving reads and
+        // writes forces a layout per element and makes scrolling stutter.
+        const moves: [HTMLElement, string][] = [];
         for (const el of parallax) {
-          const speed = Number(el.dataset.parallax) || 0;
           const host = (el.parentElement ?? el).getBoundingClientRect();
+          if (host.bottom < -vh || host.top > vh * 2) continue; // off-screen
+          const speed = Number(el.dataset.parallax) || 0;
           const offset = host.top + host.height / 2 - vh / 2;
-          el.style.transform = `translate3d(0, ${(offset * -speed).toFixed(1)}px, 0)`;
+          moves.push([el, `translate3d(0, ${Math.round(offset * -speed)}px, 0)`]);
         }
+        for (const [el, tf] of moves) el.style.transform = tf;
       }
       for (const el of scrubs) {
         const r = el.getBoundingClientRect();
@@ -58,6 +61,7 @@ export function ScrollEngine() {
         root.style.setProperty("--hud-edge", current.dataset.hudEdge ?? "#0f1d3a");
         document.querySelectorAll("[data-zone-link]").forEach((a) => a.toggleAttribute("aria-current", (a as HTMLElement).dataset.zoneLink === lastZone));
       }
+      root.style.setProperty("--p", p.toFixed(4));
     };
     const schedule = () => {
       if (!raf) raf = requestAnimationFrame(frame);
